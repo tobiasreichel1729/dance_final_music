@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:padding="20dp">
+
+    <!-- Header -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="@drawable/circle_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            android:scaleType="fitCenter"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/headerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Verbleibende Zeit"
+            android:textColor="@color/textOnDark"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <!-- Spacer top -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Phase label -->
+    <TextView
+        android:id="@+id/phaseLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text=""
+        android:textColor="@color/accent"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <!-- Next dance label (shown during pause/break) -->
+    <TextView
+        android:id="@+id/nextDanceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text=""
+        android:textSize="15sp"
+        android:visibility="gone" />
+
+    <!-- Timer circle container -->
+    <FrameLayout
+        android:id="@+id/timerCircle"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:background="@drawable/timer_circle_bg">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- Time text -->
+            <TextView
+                android:id="@+id/timeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="@color/textOnDark"
+                android:textSize="52sp"
+                android:textStyle="bold"
+                android:fontFamily="monospace" />
+
+            <!-- Status icon -->
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/accent"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- Progress text -->
+    <TextView
+        android:id="@+id/progressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="0/0"
+        android:textColor="@color/textSecondaryOnDark"
+        android:textSize="16sp" />
+
+    <!-- Dot indicators -->
+    <LinearLayout
+        android:id="@+id/dotsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal" />
+
+    <!-- Spacer bottom -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Start/Stop button -->
+    <Button
+        android:id="@+id/startStopButton"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@drawable/start_button_bg"
+        android:text="START"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textAllCaps="false" />
+
+    <!-- Skip / Back row -->
+    <LinearLayout
+        android:id="@+id/skipBackRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/backDanceBtn"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:text="\u2190 Back"
+            android:textSize="15sp"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/skipDanceBtn"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:text="Skip \u2192"
+            android:textSize="15sp"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:padding="20dp">
+
+    <!-- Header: Settings button only -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp">
+
+        <ImageView
+            android:id="@+id/settingsBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|center_vertical"
+            android:background="@drawable/circle_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_settings"
+            android:scaleType="fitCenter"
+            android:contentDescription="Settings"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </FrameLayout>
+
+    <!-- Spacer top -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Select Dances Card -->
+    <LinearLayout
+        android:id="@+id/selectDancesCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/card_bg"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/selectDancesLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tänze auswählen"
+            android:textColor="@color/textOnDark"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/selectDancesSublabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Bitte wähle zuerst Tänze aus"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <!-- Music Timing Card -->
+    <LinearLayout
+        android:id="@+id/musicTimingCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/card_bg"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/musicTimingLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Musikeinstellungen"
+            android:textColor="@color/textOnDark"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/musicTimingSublabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="60s / 10s"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <!-- Burst Settings Card -->
+    <LinearLayout
+        android:id="@+id/burstSettingsCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/card_bg"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/burstSettingsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Burst-Einstellungen"
+            android:textColor="@color/textOnDark"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/burstSettingsSublabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="0"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <!-- Spacer bottom -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Start Button -->
+    <FrameLayout
+        android:id="@+id/startButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/start_button_bg">
+
+        <TextView
+            android:id="@+id/startButtonText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Starten"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+</LinearLayout>

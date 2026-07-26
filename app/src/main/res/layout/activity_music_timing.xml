@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:padding="20dp">
+
+    <!-- Header -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="@drawable/circle_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            android:scaleType="fitCenter"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/headerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Musikeinstellungen"
+            android:textColor="@color/textOnDark"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/divider" />
+
+    <!-- Spacer top -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Music duration -->
+    <TextView
+        android:id="@+id/durationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Musikdauer (Sek): 60s"
+        android:textColor="@color/textOnDark"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <SeekBar
+        android:id="@+id/durationSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:max="58"
+        android:progress="10"
+        android:progressTint="@color/accent"
+        android:thumbTint="@color/accent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/durationMin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="10s"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/durationMax"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="300s"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <!-- 20dp gap -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <!-- Pause duration -->
+    <TextView
+        android:id="@+id/pauseLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pause zwischen (Sek): 10s"
+        android:textColor="@color/textOnDark"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <SeekBar
+        android:id="@+id/pauseSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:max="60"
+        android:progress="10"
+        android:progressTint="@color/accent"
+        android:thumbTint="@color/accent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pauseMin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0s"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/pauseMax"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="60s"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <!-- Spacer bottom -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

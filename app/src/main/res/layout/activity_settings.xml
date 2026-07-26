@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:padding="20dp">
+
+    <!-- Header -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="@drawable/circle_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            android:scaleType="fitCenter"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/headerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Einstellungen"
+            android:textColor="@color/textOnDark"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/divider" />
+
+    <!-- Scrollable content -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp">
+
+            <!-- Tanzstil section -->
+            <TextView
+                android:id="@+id/danceStyleSectionHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tanzstil"
+                android:textColor="@color/accent"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Standard/Latin toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/standardBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="Standard"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/lateinBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Latein"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
+
+            </LinearLayout>
+
+            <!-- 20dp gap -->
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+            <!-- Musik verwalten section -->
+            <TextView
+                android:id="@+id/musicSectionHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Musik verwalten"
+                android:textColor="@color/accent"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Dance music list -->
+            <LinearLayout
+                android:id="@+id/musicListContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical" />
+
+            <!-- 20dp gap -->
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+            <!-- Farbschema section -->
+            <TextView
+                android:id="@+id/themeSectionHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Farbschema"
+                android:textColor="@color/accent"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Dark/Light toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/darkBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="Dark"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/lightBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Light"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
+
+            </LinearLayout>
+
+            <!-- Akzentfarbe label -->
+            <TextView
+                android:id="@+id/accentColorLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Akzentfarbe:"
+                android:textColor="@color/textOnDark"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Color circles flow -->
+            <LinearLayout
+                android:id="@+id/accentColorFlow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+
+                <!-- Row 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/color1"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color2"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color3"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color4"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color5"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                </LinearLayout>
+
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/color6"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color7"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color8"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color9"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                    <View
+                        android:id="@+id/color10"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/color_circle_bg" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 20dp gap -->
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+            <!-- Sprache section -->
+            <TextView
+                android:id="@+id/languageSectionHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sprache"
+                android:textColor="@color/accent"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Language toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/deBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="DE"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/enBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="EN"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
+
+            </LinearLayout>
+
+            <!-- 20dp gap -->
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+            <!-- Ueber die App button -->
+            <Button
+                android:id="@+id/aboutBtn"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/card_bg"
+                android:text="Ueber die App"
+                android:textColor="@color/textOnDark"
+                android:textSize="16sp"
+                android:textAllCaps="false" />
+
+            <!-- Bottom spacer -->
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

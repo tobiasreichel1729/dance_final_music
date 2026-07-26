@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme (default) -->
+    <color name="colorPrimary">#1E88E5</color>
+    <color name="colorPrimaryVariant">#1565C0</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+
+    <color name="colorSecondary">#BB86FC</color>
+    <color name="colorSecondaryVariant">#7C4DFF</color>
+    <color name="colorOnSecondary">#000000</color>
+
+    <color name="background_dark">#121212</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="surfaceVariant_dark">#2C2C2C</color>
+    <color name="onBackground_dark">#FFFFFF</color>
+    <color name="onSurface_dark">#FFFFFF</color>
+    <color name="onSurfaceVariant_dark">#B0B0B0</color>
+
+    <color name="divider_dark">#333333</color>
+    <color name="border_dark">#444444</color>
+
+    <color name="timerBg_dark">#1E1E1E</color>
+    <color name="timerBorder_dark">#1E88E5</color>
+
+    <color name="accent">#1E88E5</color>
+    <color name="accentPressed">#1565C0</color>
+    <color name="textOnDark">#FFFFFF</color>
+    <color name="textSecondaryOnDark">#B0B0B0</color>
+    <color name="divider">#333333</color>
+    <color name="borderColor">#444444</color>
+
+    <color name="dotIndicator">#555555</color>
+    <color name="dotIndicatorActive">#1E88E5</color>
+
+    <color name="toggleActive">#1E88E5</color>
+    <color name="toggleInactive">#2C2C2C</color>
+
+    <color name="stopRed">#E53935</color>
+
+    <!-- Light theme -->
+    <color name="background_light">#F5F5F5</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="surfaceVariant_light">#E0E0E0</color>
+    <color name="onBackground_light">#121212</color>
+    <color name="onSurface_light">#121212</color>
+    <color name="onSurfaceVariant_light">#666666</color>
+
+    <color name="divider_light">#DDDDDD</color>
+    <color name="border_light">#CCCCCC</color>
+
+    <color name="timerBg_light">#FFFFFF</color>
+    <color name="timerBorder_light">#1E88E5</color>
+
+    <color name="accentColors_1">#E53935</color>
+    <color name="accentColors_2">#D81B60</color>
+    <color name="accentColors_3">#8E24AA</color>
+    <color name="accentColors_4">#5E35B1</color>
+    <color name="accentColors_5">#1E88E5</color>
+    <color name="accentColors_6">#00897B</color>
+    <color name="accentColors_7">#43A047</color>
+    <color name="accentColors_8">#FDD835</color>
+    <color name="accentColors_9">#FB8C00</color>
+    <color name="accentColors_10">#F4511E</color>
+
+    <color name="accentColor_transparent">#33FFFFFF</color>
+
+    <color name="ic_launcher_background">#FFFFFF</color>
+</resources>

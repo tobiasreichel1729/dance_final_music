@@ -1,7 +1,6 @@
-package com.made4dancers.danceapp;
+package de.dancefinalmusic;
 
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -10,20 +9,18 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.made4dancers.danceapp.util.SettingsManager;
-import com.made4dancers.danceapp.util.ThemeHelper;
-import com.made4dancers.danceapp.util.Translations;
+import de.dancefinalmusic.util.SettingsManager;
+import de.dancefinalmusic.util.ThemeHelper;
+import de.dancefinalmusic.util.Translations;
 
 import java.util.Locale;
 
-public class MusicTimingActivity extends AppCompatActivity {
+public class BurstSettingsActivity extends AppCompatActivity {
 
-    private static final int DURATION_MIN = 10;
-    private static final int DURATION_MAX = 300;
-    private static final int DURATION_STEP = 5;
+    private static final int COUNT_MIN = 1;
+    private static final int COUNT_MAX = 10;
     private static final int PAUSE_MIN = 0;
     private static final int PAUSE_MAX = 60;
-    private static final int PAUSE_STEP = 1;
 
     private SettingsManager settingsManager;
     private String theme;
@@ -32,29 +29,29 @@ public class MusicTimingActivity extends AppCompatActivity {
 
     private TextView headerTitle;
     private ImageView backBtn;
-    private TextView durationLabel;
-    private SeekBar durationSlider;
-    private TextView durationMin;
-    private TextView durationMax;
+    private TextView countLabel;
+    private SeekBar countSlider;
+    private TextView countMin;
+    private TextView countMax;
     private TextView pauseLabel;
     private SeekBar pauseSlider;
     private TextView pauseMin;
     private TextView pauseMax;
 
-    private int currentDuration;
+    private int currentCount;
     private int currentPause;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_music_timing);
+        setContentView(R.layout.activity_burst_settings);
 
         settingsManager = SettingsManager.getInstance(this);
-        theme = settingsManager.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settingsManager.getTheme());
         accentIndex = settingsManager.getAccentColorIndex();
         lang = settingsManager.getLanguage();
-        currentDuration = settingsManager.getMusicDuration();
-        currentPause = settingsManager.getMusicPause();
+        currentCount = settingsManager.getBurstCount();
+        currentPause = settingsManager.getBurstPause();
 
         initViews();
         applyTheme();
@@ -64,25 +61,30 @@ public class MusicTimingActivity extends AppCompatActivity {
     private void initViews() {
         headerTitle = findViewById(R.id.headerTitle);
         backBtn = findViewById(R.id.backBtn);
-        durationLabel = findViewById(R.id.durationLabel);
-        durationSlider = findViewById(R.id.durationSlider);
-        durationMin = findViewById(R.id.durationMin);
-        durationMax = findViewById(R.id.durationMax);
+        countLabel = findViewById(R.id.countLabel);
+        countSlider = findViewById(R.id.countSlider);
+        countMin = findViewById(R.id.countMin);
+        countMax = findViewById(R.id.countMax);
         pauseLabel = findViewById(R.id.pauseLabel);
         pauseSlider = findViewById(R.id.pauseSlider);
         pauseMin = findViewById(R.id.pauseMin);
         pauseMax = findViewById(R.id.pauseMax);
 
-        headerTitle.setText(Translations.getMusicTiming(lang));
-        backBtn.setOnClickListener(v -> finish());
+        headerTitle.setText(Translations.getRounds(lang));
+        backBtn.setOnClickListener(v -> MainActivity.goToMain(this));
 
-        int durationProgress = (currentDuration - DURATION_MIN) / DURATION_STEP;
-        durationSlider.setProgress(durationProgress);
-        updateDurationLabel(currentDuration);
+        int countProgress = currentCount - COUNT_MIN;
+        countSlider.setProgress(countProgress);
+        updateCountLabel(currentCount);
 
-        int pauseProgress = (currentPause - PAUSE_MIN) / PAUSE_STEP;
+        int pauseProgress = currentPause - PAUSE_MIN;
         pauseSlider.setProgress(pauseProgress);
         updatePauseLabel(currentPause);
+    }
+
+    @Override
+    public void onBackPressed() {
+        MainActivity.goToMain(this);
     }
 
     private void applyTheme() {
@@ -95,10 +97,10 @@ public class MusicTimingActivity extends AppCompatActivity {
         getWindow().getDecorView().setBackgroundColor(bg);
 
         headerTitle.setTextColor(onBg);
-        durationLabel.setTextColor(onBg);
+        countLabel.setTextColor(onBg);
         pauseLabel.setTextColor(onBg);
-        durationMin.setTextColor(onSurfaceVar);
-        durationMax.setTextColor(onSurfaceVar);
+        countMin.setTextColor(onSurfaceVar);
+        countMax.setTextColor(onSurfaceVar);
         pauseMin.setTextColor(onSurfaceVar);
         pauseMax.setTextColor(onSurfaceVar);
 
@@ -108,64 +110,53 @@ public class MusicTimingActivity extends AppCompatActivity {
         }
 
         int accent = ThemeHelper.getAccentColor(accentIndex);
-        durationSlider.setProgressTintList(ColorStateList.valueOf(accent));
-        durationSlider.setThumbTintList(ColorStateList.valueOf(accent));
+        countSlider.setProgressTintList(ColorStateList.valueOf(accent));
+        countSlider.setThumbTintList(ColorStateList.valueOf(accent));
         pauseSlider.setProgressTintList(ColorStateList.valueOf(accent));
         pauseSlider.setThumbTintList(ColorStateList.valueOf(accent));
-
-        durationMin.setText(DURATION_MIN + "s");
-        durationMax.setText(DURATION_MAX + "s");
-        pauseMin.setText(PAUSE_MIN + "s");
-        pauseMax.setText(PAUSE_MAX + "s");
     }
 
     private void setupSliders() {
-        durationSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        countSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int value = DURATION_MIN + progress * DURATION_STEP;
-                updateDurationLabel(value);
+                updateCountLabel(COUNT_MIN + progress);
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                int value = DURATION_MIN + seekBar.getProgress() * DURATION_STEP;
-                currentDuration = value;
-                settingsManager.setMusicDuration(currentDuration);
-                updateDurationLabel(currentDuration);
+                currentCount = COUNT_MIN + seekBar.getProgress();
+                settingsManager.setBurstCount(currentCount);
+                updateCountLabel(currentCount);
             }
         });
 
         pauseSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int value = PAUSE_MIN + progress * PAUSE_STEP;
-                updatePauseLabel(value);
+                updatePauseLabel(PAUSE_MIN + progress);
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                int value = PAUSE_MIN + seekBar.getProgress() * PAUSE_STEP;
-                currentPause = value;
-                settingsManager.setMusicPause(currentPause);
+                currentPause = PAUSE_MIN + seekBar.getProgress();
+                settingsManager.setBurstPause(currentPause);
                 updatePauseLabel(currentPause);
             }
         });
     }
 
-    private void updateDurationLabel(int value) {
-        durationLabel.setText(String.format(Locale.getDefault(), "Musikdauer (Sek): %ds", value));
+    private void updateCountLabel(int value) {
+        countLabel.setText(Translations.getRoundsCount(lang, value));
     }
 
     private void updatePauseLabel(int value) {
-        pauseLabel.setText(String.format(Locale.getDefault(), "Pause zwischen (Sek): %ds", value));
+        pauseLabel.setText(Translations.getRoundPause(lang, value));
     }
 }

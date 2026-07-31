@@ -1,4 +1,4 @@
-package com.made4dancers.danceapp.util;
+package de.dancefinalmusic.util;
 
 public class Translations {
 
@@ -46,7 +46,15 @@ public class Translations {
     }
 
     public static String getMusicPause(String lang) {
-        return "de".equals(lang) ? "Musikpause" : "Music Pause";
+        return "de".equals(lang) ? "Musikpause" : "Music Break";
+    }
+
+    public static String getMusicDurationSeconds(String lang, int value) {
+        return "de".equals(lang) ? "Musikdauer (Sek): " + value + "s" : "Music Duration (sec): " + value + "s";
+    }
+
+    public static String getMusicPauseSeconds(String lang, int value) {
+        return "de".equals(lang) ? "Pause zwischen (Sek): " + value + "s" : "Break between (sec): " + value + "s";
     }
 
     public static String getBurstSettings(String lang) {
@@ -57,12 +65,16 @@ public class Translations {
         return "de".equals(lang) ? "Runden" : "Rounds";
     }
 
+    public static String getRoundsCountLabel(String lang) {
+        return "de".equals(lang) ? "Anzahl Runden" : "Number of Rounds";
+    }
+
     public static String getRoundsCount(String lang, int count) {
         return "de".equals(lang) ? "Anzahl Runden: " + count : "Number of Rounds: " + count;
     }
 
     public static String getRoundPause(String lang, int seconds) {
-        return "de".equals(lang) ? "Pause zwischen Runden: " + seconds + "s" : "Pause between Rounds: " + seconds + "s";
+        return "de".equals(lang) ? "Pause zwischen Runden: " + seconds + "s" : "Break between Rounds: " + seconds + "s";
     }
 
     public static String getBurstCount(String lang) {
@@ -70,7 +82,7 @@ public class Translations {
     }
 
     public static String getBurstPause(String lang) {
-        return "de".equals(lang) ? "Pause zwischen Runden" : "Pause between Rounds";
+        return "de".equals(lang) ? "Pause zwischen Runden" : "Break between Rounds";
     }
 
     public static String getStart(String lang) {
@@ -93,6 +105,10 @@ public class Translations {
         return "de".equals(lang) ? "Bestätigen" : "Confirm";
     }
 
+    public static String getCancel(String lang) {
+        return "de".equals(lang) ? "Abbrechen" : "Cancel";
+    }
+
     public static String getRemainingTime(String lang) {
         return "de".equals(lang) ? "Verbleibende Zeit" : "Remaining Time";
     }
@@ -106,7 +122,7 @@ public class Translations {
     }
 
     public static String getPauseLabel(String lang) {
-        return "de".equals(lang) ? "Pause" : "Pause";
+        return "de".equals(lang) ? "Pause" : "Break";
     }
 
     public static String getFinished(String lang) {
@@ -139,6 +155,10 @@ public class Translations {
 
     public static String getLightMode(String lang) {
         return "de".equals(lang) ? "Heller Modus" : "Light Mode";
+    }
+
+    public static String getSystemMode(String lang) {
+        return "de".equals(lang) ? "System" : "System";
     }
 
     public static String getAccentColor(String lang) {
@@ -189,11 +209,4 @@ public class Translations {
         return "de".equals(lang) ? "Überspringen" : "Skip";
     }
 
-    public static String getPlaying(String lang) {
-        return "de".equals(lang) ? "Musik" : "Music";
-    }
-
-    public static String getPaused(String lang) {
-        return "de".equals(lang) ? "Pause" : "Pause";
-    }
 }

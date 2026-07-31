@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="timer_circle_size">130dp</dimen>
+    <dimen name="timer_time_size">30sp</dimen>
+    <dimen name="timer_phase_margin_top">8dp</dimen>
+</resources>

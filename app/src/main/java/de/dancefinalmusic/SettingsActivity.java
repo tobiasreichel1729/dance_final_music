@@ -1,4 +1,4 @@
-package com.made4dancers.danceapp;
+package de.dancefinalmusic;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -17,9 +17,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.made4dancers.danceapp.util.SettingsManager;
-import com.made4dancers.danceapp.util.ThemeHelper;
-import com.made4dancers.danceapp.util.Translations;
+import de.dancefinalmusic.util.SettingsManager;
+import de.dancefinalmusic.util.ThemeHelper;
+import de.dancefinalmusic.util.Translations;
 
 
 public class SettingsActivity extends AppCompatActivity {
@@ -37,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView danceStyleSectionHeader;
     private TextView themeSectionHeader;
     private Button darkBtn;
+    private Button systemBtn;
     private Button lightBtn;
     private TextView accentColorLabel;
     private LinearLayout accentColorFlow;
@@ -56,7 +57,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         settings = SettingsManager.getInstance(this);
-        theme = settings.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         accentIndex = settings.getAccentColorIndex();
         accentColor = ThemeHelper.getAccentColor(accentIndex);
         lang = settings.getLanguage();
@@ -72,7 +73,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        theme = settings.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         accentIndex = settings.getAccentColorIndex();
         accentColor = ThemeHelper.getAccentColor(accentIndex);
         lang = settings.getLanguage();
@@ -83,6 +84,11 @@ public class SettingsActivity extends AppCompatActivity {
         updateColorSelection();
     }
 
+    @Override
+    public void onBackPressed() {
+        MainActivity.goToMain(this);
+    }
+
     private void bindViews() {
         headerTitle = findViewById(R.id.headerTitle);
         backBtn = findViewById(R.id.backBtn);
@@ -91,6 +97,7 @@ public class SettingsActivity extends AppCompatActivity {
         danceStyleSectionHeader = findViewById(R.id.danceStyleSectionHeader);
         themeSectionHeader = findViewById(R.id.themeSectionHeader);
         darkBtn = findViewById(R.id.darkBtn);
+        systemBtn = findViewById(R.id.systemBtn);
         lightBtn = findViewById(R.id.lightBtn);
         accentColorLabel = findViewById(R.id.accentColorLabel);
         accentColorFlow = findViewById(R.id.accentColorFlow);
@@ -101,13 +108,22 @@ public class SettingsActivity extends AppCompatActivity {
         enBtn = findViewById(R.id.enBtn);
         aboutBtn = findViewById(R.id.aboutBtn);
 
-        backBtn.setOnClickListener(v -> finish());
+        backBtn.setOnClickListener(v -> MainActivity.goToMain(this));
 
         darkBtn.setOnClickListener(v -> {
             settings.setTheme("dark");
             theme = "dark";
             updateToggleStates();
             applyTheme();
+            populateMusicList();
+        });
+
+        systemBtn.setOnClickListener(v -> {
+            settings.setTheme("system");
+            theme = ThemeHelper.getEffectiveTheme(this, "system");
+            updateToggleStates();
+            applyTheme();
+            populateMusicList();
         });
 
         lightBtn.setOnClickListener(v -> {
@@ -115,6 +131,7 @@ public class SettingsActivity extends AppCompatActivity {
             theme = "light";
             updateToggleStates();
             applyTheme();
+            populateMusicList();
         });
 
         deBtn.setOnClickListener(v -> {
@@ -175,10 +192,11 @@ public class SettingsActivity extends AppCompatActivity {
         if (musicSectionHeader != null) musicSectionHeader.setTextColor(accentColor);
         if (danceStyleSectionHeader != null) danceStyleSectionHeader.setTextColor(accentColor);
         if (themeSectionHeader != null) themeSectionHeader.setTextColor(accentColor);
-        if (accentColorLabel != null) accentColorLabel.setTextColor(onSurface);
+        if (accentColorLabel != null) accentColorLabel.setTextColor(accentColor);
         if (languageSectionHeader != null) languageSectionHeader.setTextColor(accentColor);
 
         applyButtonStyle(darkBtn);
+        applyButtonStyle(systemBtn);
         applyButtonStyle(lightBtn);
         applyButtonStyle(standardBtn);
         applyButtonStyle(lateinBtn);
@@ -194,8 +212,9 @@ public class SettingsActivity extends AppCompatActivity {
         if (btn == null) return;
         int bg = ThemeHelper.getButtonBgColor(theme);
         int onSurface = ThemeHelper.getOnSurfaceColor(theme);
-        int border = ThemeHelper.getBorderColor(theme);
+        int border = ThemeHelper.getButtonBorderColor(theme);
 
+        btn.setBackgroundTintList(null);
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(dpToPx(10));
         drawable.setColor(bg);
@@ -208,8 +227,9 @@ public class SettingsActivity extends AppCompatActivity {
         if (aboutBtn == null) return;
         int bg = ThemeHelper.getSurfaceColor(theme);
         int onSurface = ThemeHelper.getOnSurfaceColor(theme);
-        int border = ThemeHelper.getBorderColor(theme);
+        int border = ThemeHelper.getButtonBorderColor(theme);
 
+        aboutBtn.setBackgroundTintList(null);
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(dpToPx(10));
         drawable.setColor(bg);
@@ -226,11 +246,15 @@ public class SettingsActivity extends AppCompatActivity {
         if (accentColorLabel != null) accentColorLabel.setText(Translations.getAccentColor(lang) + ":");
         if (languageSectionHeader != null) languageSectionHeader.setText(Translations.getLanguageSettings(lang));
         if (aboutBtn != null) aboutBtn.setText(Translations.getAbout(lang));
+        if (standardBtn != null) standardBtn.setText(Translations.getStandardLabel(lang));
+        if (lateinBtn != null) lateinBtn.setText(Translations.getLateinLabel(lang));
     }
 
     private void updateToggleStates() {
-        updateToggleButton(darkBtn, "dark".equals(theme));
-        updateToggleButton(lightBtn, "light".equals(theme));
+        String storedTheme = settings.getTheme();
+        updateToggleButton(darkBtn, "dark".equals(storedTheme));
+        updateToggleButton(systemBtn, "system".equals(storedTheme));
+        updateToggleButton(lightBtn, "light".equals(storedTheme));
         updateToggleButton(standardBtn, "standard".equals(settings.getDanceStyle()));
         updateToggleButton(lateinBtn, "latein".equals(settings.getDanceStyle()));
         updateToggleButton(deBtn, "de".equals(lang));
@@ -239,16 +263,18 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void updateToggleButton(Button btn, boolean active) {
         if (btn == null) return;
+        btn.setBackgroundTintList(null);
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(dpToPx(10));
         if (active) {
             drawable.setColor(accentColor);
+            btn.setTextColor(Color.WHITE);
         } else {
             drawable.setColor(ThemeHelper.getButtonBgColor(theme));
-            drawable.setStroke(dpToPx(1), ThemeHelper.getBorderColor(theme));
+            drawable.setStroke(dpToPx(1), ThemeHelper.getButtonBorderColor(theme));
+            btn.setTextColor(ThemeHelper.getOnSurfaceColor(theme));
         }
         btn.setBackground(drawable);
-        btn.setTextColor(Color.WHITE);
     }
 
     private void populateMusicList() {
@@ -320,6 +346,7 @@ public class SettingsActivity extends AppCompatActivity {
             addBtn.setText("...");
             addBtn.setTextSize(16);
             addBtn.setTextColor(accentColor);
+            addBtn.setBackgroundTintList(null);
             addBtn.setBackgroundColor(Color.TRANSPARENT);
             addBtn.setIncludeFontPadding(false);
             LinearLayout.LayoutParams addParams = new LinearLayout.LayoutParams(
@@ -403,7 +430,10 @@ public class SettingsActivity extends AppCompatActivity {
             circle.setColor(ThemeHelper.ACCENT_COLORS[i]);
 
             if (i == accentIndex) {
-                circle.setStroke(dpToPx(3), Color.WHITE);
+                int ringColor = "light".equals(theme)
+                        ? ThemeHelper.getOnBackgroundColor(theme)
+                        : Color.WHITE;
+                circle.setStroke(dpToPx(3), ringColor);
             } else {
                 circle.setStroke(dpToPx(2), border);
             }

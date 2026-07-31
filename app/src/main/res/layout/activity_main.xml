@@ -6,12 +6,22 @@
     android:fitsSystemWindows="true"
     android:padding="20dp">
 
-    <!-- Header: Settings button only -->
+    <!-- Header: App name + Settings button -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
+            android:text="@string/app_name"
+            android:textColor="@color/textOnDark"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/settingsBtn"
@@ -28,107 +38,319 @@
 
     </FrameLayout>
 
-    <!-- Spacer top -->
-    <Space
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
-    <!-- Select Dances Card -->
-    <LinearLayout
-        android:id="@+id/selectDancesCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/card_bg"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp">
-
-        <TextView
-            android:id="@+id/selectDancesLabel"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tänze auswählen"
-            android:textColor="@color/textOnDark"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/selectDancesSublabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Bitte wähle zuerst Tänze aus"
-            android:textColor="@color/textSecondaryOnDark"
-            android:textSize="13sp" />
+            <!-- Dance style card -->
+            <LinearLayout
+                android:id="@+id/danceStyleCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_bg"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/styleHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tanzstil"
+                    android:textColor="@color/accent"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-    <!-- Music Timing Card -->
-    <LinearLayout
-        android:id="@+id/musicTimingCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/card_bg"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/musicTimingLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Musikeinstellungen"
-            android:textColor="@color/textOnDark"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+                    <Button
+                        android:id="@+id/standardBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:text="Standard"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="14sp"
+                        android:textAllCaps="false" />
 
-        <TextView
-            android:id="@+id/musicTimingSublabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="60s / 10s"
-            android:textColor="@color/textSecondaryOnDark"
-            android:textSize="13sp" />
+                    <Button
+                        android:id="@+id/lateinBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:text="Latein"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="14sp"
+                        android:textAllCaps="false" />
 
-    </LinearLayout>
+                </LinearLayout>
 
-    <!-- Burst Settings Card -->
-    <LinearLayout
-        android:id="@+id/burstSettingsCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/card_bg"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp">
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/burstSettingsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Burst-Einstellungen"
-            android:textColor="@color/textOnDark"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            <!-- Select Dances Card -->
+            <LinearLayout
+                android:id="@+id/selectDancesCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_bg"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginTop="16dp">
 
-        <TextView
-            android:id="@+id/burstSettingsSublabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="0"
-            android:textColor="@color/textSecondaryOnDark"
-            android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/selectDancesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tänze auswählen"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/selectDancesSublabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Bitte wähle zuerst Tänze aus"
+                    android:textColor="@color/textSecondaryOnDark"
+                    android:textSize="13sp" />
 
-    <!-- Spacer bottom -->
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+            </LinearLayout>
+
+            <!-- Music Timing Card -->
+            <LinearLayout
+                android:id="@+id/musicTimingCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_bg"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:id="@+id/musicTimingLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Musikeinstellungen"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/durationLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Musikdauer"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="15sp" />
+
+                    <Button
+                        android:id="@+id/durationMinusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                    <TextView
+                        android:id="@+id/durationValue"
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="60s"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/durationPlusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="+"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/pauseLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Musikpause"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="15sp" />
+
+                    <Button
+                        android:id="@+id/pauseMinusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                    <TextView
+                        android:id="@+id/pauseValue"
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="10s"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/pausePlusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="+"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Rounds Card -->
+            <LinearLayout
+                android:id="@+id/burstSettingsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_bg"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:id="@+id/burstSettingsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Runden"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/roundsLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Anzahl Runden"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="15sp" />
+
+                    <Button
+                        android:id="@+id/roundsMinusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                    <TextView
+                        android:id="@+id/roundsValue"
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/roundsPlusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="+"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/burstPauseLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Pause zwischen Runden"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="15sp" />
+
+                    <Button
+                        android:id="@+id/burstPauseMinusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="-"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                    <TextView
+                        android:id="@+id/burstPauseValue"
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="10s"
+                        android:textColor="@color/textOnDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/burstPausePlusBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="+"
+                        android:textSize="20sp"
+                        android:textAllCaps="false" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <!-- Start Button -->
     <FrameLayout

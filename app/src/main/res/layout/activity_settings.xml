@@ -153,6 +153,18 @@
                     android:textAllCaps="false" />
 
                 <Button
+                    android:id="@+id/systemBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginEnd="3dp"
+                    android:text="System"
+                    android:textColor="@color/textOnDark"
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
+
+                <Button
                     android:id="@+id/lightBtn"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
@@ -173,7 +185,7 @@
                 android:layout_marginTop="16dp"
                 android:text="Akzentfarbe:"
                 android:textColor="@color/textOnDark"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <!-- Color circles flow -->

@@ -1,6 +1,7 @@
-package com.made4dancers.danceapp;
+package de.dancefinalmusic;
 
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.media.MediaPlayer;
@@ -15,16 +16,15 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.made4dancers.danceapp.util.SettingsManager;
-import com.made4dancers.danceapp.util.ThemeHelper;
-import com.made4dancers.danceapp.util.Translations;
+import de.dancefinalmusic.util.SettingsManager;
+import de.dancefinalmusic.util.ThemeHelper;
+import de.dancefinalmusic.util.Translations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +49,8 @@ public class DanceTimerActivity extends AppCompatActivity {
     private ImageView backBtn;
     private TextView phaseLabel;
     private TextView nextDanceLabel;
-    private FrameLayout timerCircle;
+    private TimerRingView timerRing;
     private TextView timeText;
-    private TextView statusText;
     private TextView progressText;
     private LinearLayout dotsContainer;
     private Button startStopButton;
@@ -108,10 +107,11 @@ public class DanceTimerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dance_timer);
 
         settings = SettingsManager.getInstance(this);
-        theme = settings.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         accentIndex = settings.getAccentColorIndex();
         accentColor = ThemeHelper.getAccentColor(accentIndex);
         lang = settings.getLanguage();
+        selectedDances = settings.getSelectedDancesList();
 
         bindViews();
         setupGestures();
@@ -123,10 +123,11 @@ public class DanceTimerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        theme = settings.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         accentIndex = settings.getAccentColorIndex();
         accentColor = ThemeHelper.getAccentColor(accentIndex);
         lang = settings.getLanguage();
+        selectedDances = settings.getSelectedDancesList();
         applyTheme();
         updateLabels();
         updateUI();
@@ -141,13 +142,22 @@ public class DanceTimerActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
+        accentIndex = settings.getAccentColorIndex();
+        accentColor = ThemeHelper.getAccentColor(accentIndex);
+        setContentView(R.layout.activity_dance_timer);
+        bindViews();
+        applyTheme();
+        updateLabels();
+        updateUI();
+    }
+
+    @Override
     public void onBackPressed() {
-        if (isRunning && !history.isEmpty()) {
-            goBack();
-        } else {
-            stopDance();
-            super.onBackPressed();
-        }
+        stopDance();
+        MainActivity.goToMain(this);
     }
 
     private void bindViews() {
@@ -155,9 +165,8 @@ public class DanceTimerActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.backBtn);
         phaseLabel = findViewById(R.id.phaseLabel);
         nextDanceLabel = findViewById(R.id.nextDanceLabel);
-        timerCircle = findViewById(R.id.timerCircle);
+        timerRing = findViewById(R.id.timerRing);
         timeText = findViewById(R.id.timeText);
-        statusText = findViewById(R.id.statusText);
         progressText = findViewById(R.id.progressText);
         dotsContainer = findViewById(R.id.dotsContainer);
         startStopButton = findViewById(R.id.startStopButton);
@@ -166,12 +175,8 @@ public class DanceTimerActivity extends AppCompatActivity {
         backDanceBtn = findViewById(R.id.backDanceBtn);
 
         backBtn.setOnClickListener(v -> {
-            if (isRunning && !history.isEmpty()) {
-                goBack();
-            } else {
-                stopDance();
-                finish();
-            }
+            stopDance();
+            MainActivity.goToMain(this);
         });
 
         startStopButton.setOnClickListener(v -> {
@@ -468,10 +473,27 @@ public class DanceTimerActivity extends AppCompatActivity {
     }
 
     private void advanceFromPauseOrNextDance() {
-        int pause = settings.getMusicPause();
-        if (pause > 0) {
-            currentPhase = PHASE_PAUSE_BETWEEN_MUSIC;
-            timeRemaining = pause;
+        boolean hasNextDance = currentDanceIndex + 1 < selectedDances.size();
+        boolean hasNextRound = currentRound + 1 < totalRounds;
+
+        if (hasNextDance) {
+            int pause = settings.getMusicPause();
+            if (pause > 0) {
+                currentPhase = PHASE_PAUSE_BETWEEN_MUSIC;
+                timeRemaining = pause;
+            } else {
+                nextDanceOrNextRound();
+            }
+        } else if (hasNextRound) {
+            int breakTime = settings.getBurstPause();
+            if (breakTime > 0) {
+                currentDanceIndex++;
+                currentRound++;
+                currentPhase = PHASE_ROUND_BREAK;
+                timeRemaining = breakTime;
+            } else {
+                nextDanceOrNextRound();
+            }
         } else {
             nextDanceOrNextRound();
         }
@@ -528,24 +550,29 @@ public class DanceTimerActivity extends AppCompatActivity {
             backBtn.setImageTintList(ColorStateList.valueOf(onBg));
             backBtn.setBackground(ThemeHelper.createCircleBackground(theme));
         }
-        if (phaseLabel != null) phaseLabel.setTextColor(accentColor);
+        if (phaseLabel != null) {
+            phaseLabel.setTextColor(accentColor);
+            GradientDrawable box = new GradientDrawable();
+            box.setCornerRadius(dpToPx(20));
+            box.setColor(surface);
+            box.setStroke(dpToPx(2), accentColor);
+            phaseLabel.setBackground(box);
+        }
         if (nextDanceLabel != null) nextDanceLabel.setTextColor(onSurface);
         if (timeText != null) timeText.setTextColor(onBg);
-        if (statusText != null) statusText.setTextColor(accentColor);
         if (progressText != null) progressText.setTextColor(onSurface);
 
-        if (timerCircle != null) {
-            int timerBg = ThemeHelper.getTimerBgColor(accentIndex);
-            GradientDrawable timerDrawable = new GradientDrawable();
-            timerDrawable.setShape(GradientDrawable.OVAL);
-            timerDrawable.setColor(timerBg);
-            timerDrawable.setStroke(dpToPx(3), accentColor);
-            timerCircle.setBackground(timerDrawable);
+        if (timerRing != null) {
+            timerRing.setColors(
+                    ThemeHelper.getTimerBgColor(accentIndex),
+                    ThemeHelper.getOnSurfaceVariantColor(theme),
+                    accentColor);
         }
 
         if (startStopButton != null) updateStartStopButtonColor();
 
         if (skipDanceBtn != null) {
+            skipDanceBtn.setBackgroundTintList(null);
             GradientDrawable skipBg = new GradientDrawable();
             skipBg.setCornerRadius(dpToPx(14));
             skipBg.setColor(accentColor);
@@ -554,6 +581,7 @@ public class DanceTimerActivity extends AppCompatActivity {
         }
 
         if (backDanceBtn != null) {
+            backDanceBtn.setBackgroundTintList(null);
             GradientDrawable backBg = new GradientDrawable();
             backBg.setCornerRadius(dpToPx(14));
             backBg.setStroke(dpToPx(2), accentColor);
@@ -567,6 +595,7 @@ public class DanceTimerActivity extends AppCompatActivity {
 
     private void updateStartStopButtonColor() {
         if (startStopButton == null) return;
+        startStopButton.setBackgroundTintList(null);
         GradientDrawable btnDrawable = new GradientDrawable();
         btnDrawable.setCornerRadius(dpToPx(14));
         btnDrawable.setColor(isRunning ? 0xFFE53935 : accentColor);
@@ -588,13 +617,34 @@ public class DanceTimerActivity extends AppCompatActivity {
 
     private void updateUI() {
         if (timeText != null) timeText.setText(formatTime(timeRemaining));
+        updateRing();
         updatePhaseLabel();
-        updateStatusText();
         updateProgressText();
         updateStartStopButtonColor();
         updateStartStopButtonText();
         updateSkipBackVisibility();
         rebuildDots();
+    }
+
+    private void updateRing() {
+        if (timerRing == null) return;
+        int total = 1;
+        switch (currentPhase) {
+            case PHASE_MUSIC:
+                total = settings.getMusicDuration();
+                break;
+            case PHASE_PAUSE_BETWEEN_MUSIC:
+                total = settings.getMusicPause();
+                break;
+            case PHASE_ROUND_BREAK:
+                total = settings.getBurstPause();
+                break;
+            default:
+                break;
+        }
+        if (total < 1) total = 1;
+        float remainingFraction = Math.max(0f, Math.min(1f, timeRemaining / (float) total));
+        timerRing.setProgressFraction(1f - remainingFraction);
     }
 
     private void updateSkipBackVisibility() {
@@ -615,22 +665,25 @@ public class DanceTimerActivity extends AppCompatActivity {
         if (nextDanceLabel == null) return;
         switch (currentPhase) {
             case PHASE_IDLE:
-                phaseLabel.setText("");
-                nextDanceLabel.setVisibility(View.GONE);
+                if (selectedDances != null && !selectedDances.isEmpty()) {
+                    phaseLabel.setText(selectedDances.get(0));
+                } else {
+                    phaseLabel.setText("");
+                }
+                nextDanceLabel.setText("");
                 break;
             case PHASE_MUSIC:
                 if (selectedDances != null && currentDanceIndex < selectedDances.size()) {
                     phaseLabel.setText(selectedDances.get(currentDanceIndex));
                 }
-                nextDanceLabel.setVisibility(View.GONE);
+                nextDanceLabel.setText("");
                 break;
             case PHASE_PAUSE_BETWEEN_MUSIC:
                 phaseLabel.setText(Translations.getPauseLabel(lang));
                 if (selectedDances != null && currentDanceIndex + 1 < selectedDances.size()) {
                     nextDanceLabel.setText("\u2192 " + selectedDances.get(currentDanceIndex + 1));
-                    nextDanceLabel.setVisibility(View.VISIBLE);
                 } else {
-                    nextDanceLabel.setVisibility(View.GONE);
+                    nextDanceLabel.setText("");
                 }
                 break;
             case PHASE_ROUND_BREAK:
@@ -638,27 +691,9 @@ public class DanceTimerActivity extends AppCompatActivity {
                         (currentRound + 1) + "/" + totalRounds + ")");
                 if (selectedDances != null && !selectedDances.isEmpty()) {
                     nextDanceLabel.setText("\u2192 " + selectedDances.get(0));
-                    nextDanceLabel.setVisibility(View.VISIBLE);
                 } else {
-                    nextDanceLabel.setVisibility(View.GONE);
+                    nextDanceLabel.setText("");
                 }
-                break;
-        }
-    }
-
-    private void updateStatusText() {
-        if (statusText == null) return;
-        switch (currentPhase) {
-            case PHASE_MUSIC:
-                statusText.setText(Translations.getPlaying(lang));
-                break;
-            case PHASE_PAUSE_BETWEEN_MUSIC:
-            case PHASE_ROUND_BREAK:
-                statusText.setText(Translations.getPaused(lang));
-                break;
-            case PHASE_IDLE:
-            default:
-                statusText.setText(Translations.getStart(lang));
                 break;
         }
     }

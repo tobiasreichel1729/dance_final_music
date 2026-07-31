@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Made4Dancers" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.DanceFinalMusic" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">#FFFFFF</item>
     </style>

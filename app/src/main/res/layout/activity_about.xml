@@ -65,80 +65,41 @@
                 android:textSize="26sp"
                 android:textStyle="bold" />
 
-            <!-- Subtitle -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Dance Training App"
-                android:textColor="@color/textSecondaryOnDark"
-                android:textSize="16sp" />
-
-            <!-- Version -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Version 1.0.0"
-                android:textColor="@color/textSecondaryOnDark"
-                android:textSize="14sp" />
-
-            <!-- 20dp gap -->
+            <!-- 24dp gap -->
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="20dp" />
+                android:layout_height="24dp" />
 
-            <!-- Copyrights section -->
+            <!-- Contact section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Copyrights"
+                android:text="Kontakt"
                 android:textColor="@color/accent"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/contactEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Copyright (C) 2026 made4dancers"
+                android:text="Email: example@example.de"
                 android:textColor="@color/textSecondaryOnDark"
                 android:textSize="13sp"
-                android:lineSpacingMultiplier="1.3" />
+                android:lineSpacingMultiplier="1.3"
+                android:autoLink="email" />
 
-            <!-- 20dp gap -->
+            <!-- 24dp gap -->
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="20dp" />
-
-            <!-- Thanks section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Danke an"
-                android:textColor="@color/accent"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Alle Taenzerinnen und Taenzer, die diese App nutzen und verbessern helfen."
-                android:textColor="@color/textSecondaryOnDark"
-                android:textSize="13sp"
-                android:lineSpacingMultiplier="1.3" />
-
-            <!-- 20dp gap -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="20dp" />
+                android:layout_height="24dp" />
 
             <!-- License section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="License"
+                android:text="MIT Licence"
                 android:textColor="@color/accent"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -147,7 +108,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program."
+                android:text="MIT License\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
                 android:textColor="@color/textSecondaryOnDark"
                 android:textSize="13sp"
                 android:lineSpacingMultiplier="1.3" />

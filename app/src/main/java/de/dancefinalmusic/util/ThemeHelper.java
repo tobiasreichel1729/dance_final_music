@@ -1,6 +1,8 @@
-package com.made4dancers.danceapp.util;
+package de.dancefinalmusic.util;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -83,6 +85,13 @@ public class ThemeHelper {
         return Math.max(0, Math.min(9, index));
     }
 
+    public static String getEffectiveTheme(Context context, String theme) {
+        if (context == null || !"system".equals(theme)) return theme;
+        int nightMode = context.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK;
+        return nightMode == Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
+    }
+
     public static int getBackgroundColor(String theme) {
         return "light".equals(theme) ? LIGHT_BACKGROUND : DARK_BACKGROUND;
     }
@@ -109,6 +118,10 @@ public class ThemeHelper {
 
     public static int getBorderColor(String theme) {
         return "light".equals(theme) ? LIGHT_BORDER : DARK_BORDER;
+    }
+
+    public static int getButtonBorderColor(String theme) {
+        return "light".equals(theme) ? LIGHT_ON_BACKGROUND : DARK_BORDER;
     }
 
     public static int getButtonBgColor(String theme) {

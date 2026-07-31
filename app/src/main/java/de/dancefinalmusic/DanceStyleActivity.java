@@ -1,16 +1,17 @@
-package com.made4dancers.danceapp;
+package de.dancefinalmusic;
 
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.made4dancers.danceapp.databinding.ActivityDanceStyleBinding;
-import com.made4dancers.danceapp.util.SettingsManager;
-import com.made4dancers.danceapp.util.ThemeHelper;
-import com.made4dancers.danceapp.util.Translations;
+import de.dancefinalmusic.databinding.ActivityDanceStyleBinding;
+import de.dancefinalmusic.util.SettingsManager;
+import de.dancefinalmusic.util.ThemeHelper;
+import de.dancefinalmusic.util.Translations;
 
 public class DanceStyleActivity extends AppCompatActivity {
 
@@ -29,7 +30,7 @@ public class DanceStyleActivity extends AppCompatActivity {
     }
 
     private void applyThemeAndColors() {
-        String theme = settings.getTheme();
+        String theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         int accentIndex = settings.getAccentColorIndex();
         String lang = settings.getLanguage();
 
@@ -50,33 +51,51 @@ public class DanceStyleActivity extends AppCompatActivity {
         boolean standardSelected = "standard".equals(currentStyle);
 
         applyStyleButton(binding.btnStandard, Translations.getStandardLabel(lang),
-                standardSelected, accent, buttonBg, onSurface);
+                standardSelected, accent, buttonBg, onSurface,
+                ThemeHelper.getButtonBorderColor(theme));
         applyStyleButton(binding.btnLatein, Translations.getLateinLabel(lang),
-                !standardSelected, accent, buttonBg, onSurface);
+                !standardSelected, accent, buttonBg, onSurface,
+                ThemeHelper.getButtonBorderColor(theme));
     }
 
     private void applyStyleButton(Button button, String text, boolean selected,
-                                  int accentColor, int buttonBgColor, int textColor) {
+                                  int accentColor, int buttonBgColor, int textColor,
+                                  int borderColor) {
         button.setText(text);
-        button.setTextColor(textColor);
+        button.setBackgroundTintList(null);
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setCornerRadius(dpToPx(10));
         if (selected) {
-            button.setBackgroundColor(accentColor);
+            drawable.setColor(accentColor);
+            button.setTextColor(Color.WHITE);
         } else {
-            button.setBackgroundColor(buttonBgColor);
+            drawable.setColor(buttonBgColor);
+            drawable.setStroke(dpToPx(1), borderColor);
+            button.setTextColor(textColor);
         }
+        button.setBackground(drawable);
     }
 
     private void setupListeners() {
-        binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> MainActivity.goToMain(this));
 
         binding.btnStandard.setOnClickListener(v -> {
             settings.setDanceStyle("standard");
-            finish();
+            MainActivity.goToMain(this);
         });
 
         binding.btnLatein.setOnClickListener(v -> {
             settings.setDanceStyle("latein");
-            finish();
+            MainActivity.goToMain(this);
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        MainActivity.goToMain(this);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 }

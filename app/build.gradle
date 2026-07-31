@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.made4dancers.danceapp'
+    namespace 'de.dancefinalmusic'
     compileSdk 36
 
     defaultConfig {
-        applicationId "de.made4dancers.danceapp"
+        applicationId "de.dancefinalmusic"
         minSdk 26
         targetSdk 36
         versionCode 1

@@ -1,4 +1,4 @@
-package com.made4dancers.danceapp.util;
+package de.dancefinalmusic.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,7 +22,7 @@ import java.util.Random;
 
 public class SettingsManager {
 
-    private static final String PREFS_NAME = "Made4Dancers";
+    private static final String PREFS_NAME = "DanceFinalMusic";
     private static final String KEY_DANCE_STYLE = "danceStyle";
     private static final String KEY_DANCE_LEVEL = "danceLevel";
     private static final String KEY_SELECTED_DANCES = "selectedDances";
@@ -39,10 +39,10 @@ public class SettingsManager {
     private static final String DEFAULT_DANCE_LEVEL = "D";
     private static final String DEFAULT_SELECTED_DANCES = "[]";
     private static final int DEFAULT_MUSIC_DURATION = 60;
-    private static final int DEFAULT_MUSIC_PAUSE = 10;
+    private static final int DEFAULT_MUSIC_PAUSE = 30;
     private static final int DEFAULT_BURST_COUNT = 1;
-    private static final int DEFAULT_BURST_PAUSE = 10;
-    private static final String DEFAULT_THEME = "dark";
+    private static final int DEFAULT_BURST_PAUSE = 60;
+    private static final String DEFAULT_THEME = "system";
     private static final String DEFAULT_LANGUAGE = "de";
     private static final int DEFAULT_ACCENT_COLOR_INDEX = 0;
     private static final String DEFAULT_MUSIC_FOLDER_PATHS = "{}";

@@ -1,4 +1,4 @@
-package com.made4dancers.danceapp;
+package de.dancefinalmusic;
 
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.made4dancers.danceapp.util.SettingsManager;
-import com.made4dancers.danceapp.util.ThemeHelper;
-import com.made4dancers.danceapp.util.Translations;
+import de.dancefinalmusic.util.SettingsManager;
+import de.dancefinalmusic.util.ThemeHelper;
+import de.dancefinalmusic.util.Translations;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -31,7 +31,7 @@ public class AboutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_about);
 
         settings = SettingsManager.getInstance(this);
-        theme = settings.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         accentColor = ThemeHelper.getAccentColor(settings.getAccentColorIndex());
         lang = settings.getLanguage();
 
@@ -43,7 +43,7 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        theme = settings.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         accentColor = ThemeHelper.getAccentColor(settings.getAccentColorIndex());
         lang = settings.getLanguage();
         applyTheme();
@@ -55,7 +55,12 @@ public class AboutActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.backBtn);
         scrollView = findViewById(R.id.scrollView);
 
-        backBtn.setOnClickListener(v -> finish());
+        backBtn.setOnClickListener(v -> MainActivity.goToMain(this));
+    }
+
+    @Override
+    public void onBackPressed() {
+        MainActivity.goToMain(this);
     }
 
     private void applyTheme() {
@@ -91,7 +96,9 @@ public class AboutActivity extends AppCompatActivity {
                             tv.setTextColor(accentColor);
                         } else if (text.equals(getResources().getString(R.string.app_name)) ||
                                 text.contains("Copyright") || text.contains("Danke") ||
-                                text.contains("Thanks") || text.contains("License")) {
+                                text.contains("Thanks") || text.contains("License") ||
+                                text.contains("Licence") || text.contains("Kontakt") ||
+                                text.contains("Contact")) {
                             tv.setTextColor(accentColor);
                         } else {
                             tv.setTextColor(variant);

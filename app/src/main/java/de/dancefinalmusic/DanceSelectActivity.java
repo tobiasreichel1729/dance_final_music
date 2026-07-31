@@ -1,4 +1,4 @@
-package com.made4dancers.danceapp;
+package de.dancefinalmusic;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -15,9 +15,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.made4dancers.danceapp.util.SettingsManager;
-import com.made4dancers.danceapp.util.ThemeHelper;
-import com.made4dancers.danceapp.util.Translations;
+import de.dancefinalmusic.util.SettingsManager;
+import de.dancefinalmusic.util.ThemeHelper;
+import de.dancefinalmusic.util.Translations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ public class DanceSelectActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dance_select);
 
         settingsManager = SettingsManager.getInstance(this);
-        theme = settingsManager.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settingsManager.getTheme());
         accentIndex = settingsManager.getAccentColorIndex();
         lang = settingsManager.getLanguage();
         danceStyle = settingsManager.getDanceStyle();
@@ -64,7 +64,7 @@ public class DanceSelectActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        theme = settingsManager.getTheme();
+        theme = ThemeHelper.getEffectiveTheme(this, settingsManager.getTheme());
         accentIndex = settingsManager.getAccentColorIndex();
         lang = settingsManager.getLanguage();
         danceStyle = settingsManager.getDanceStyle();
@@ -82,11 +82,16 @@ public class DanceSelectActivity extends AppCompatActivity {
         confirmText = findViewById(R.id.confirmText);
 
         headerTitle.setText(Translations.getSelectDances(lang));
-        backBtn.setOnClickListener(v -> finish());
+        backBtn.setOnClickListener(v -> MainActivity.goToMain(this));
 
         selectAllBtn.setText(Translations.getSelectAll(lang));
         deselectAllBtn.setText(Translations.getDeselectAll(lang));
         updateConfirmText();
+    }
+
+    @Override
+    public void onBackPressed() {
+        MainActivity.goToMain(this);
     }
 
     private void applyTheme() {
@@ -115,7 +120,8 @@ public class DanceSelectActivity extends AppCompatActivity {
     private void updateButtonStyle(Button btn) {
         int surface = ThemeHelper.getSurfaceColor(theme);
         int onSurface = ThemeHelper.getOnSurfaceColor(theme);
-        int border = ThemeHelper.getBorderColor(theme);
+        int border = ThemeHelper.getButtonBorderColor(theme);
+        btn.setBackgroundTintList(null);
         GradientDrawable d = new GradientDrawable();
         d.setCornerRadius(dpToPx(10));
         d.setColor(surface);

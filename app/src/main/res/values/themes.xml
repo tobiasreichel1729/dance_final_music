@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Made4Dancers" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.DanceFinalMusic" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">#FFFFFF</item>
+    </style>
+
+    <style name="Theme.DanceFinalMusic.NoActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 </resources>

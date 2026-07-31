@@ -9,3 +9,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# keystore (secrets - do not commit)
+*.keystore
+keystore.properties

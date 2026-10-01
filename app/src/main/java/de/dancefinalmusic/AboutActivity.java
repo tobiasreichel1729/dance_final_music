@@ -1,12 +1,16 @@
 package de.dancefinalmusic;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +20,9 @@ import de.dancefinalmusic.util.Translations;
 
 public class AboutActivity extends AppCompatActivity {
 
+    private static final String CONTACT_EMAIL = "tobiasreichel1729@gmail.com";
+    private static final String SUPPORT_URL = "https://www.buymeacoffee.com/TobiasReichel";
+
     private SettingsManager settings;
     private String theme;
     private int accentColor;
@@ -24,6 +31,11 @@ public class AboutActivity extends AppCompatActivity {
     private TextView headerTitle;
     private ImageView backBtn;
     private ScrollView scrollView;
+    private TextView contactHeader;
+    private TextView contactName;
+    private TextView contactEmail;
+    private TextView supportLabel;
+    private ImageView contactQr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +48,8 @@ public class AboutActivity extends AppCompatActivity {
         lang = settings.getLanguage();
 
         bindViews();
-        applyTheme();
         updateLabels();
+        applyTheme();
     }
 
     @Override
@@ -46,16 +58,34 @@ public class AboutActivity extends AppCompatActivity {
         theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
         accentColor = ThemeHelper.getAccentColor(settings.getAccentColorIndex());
         lang = settings.getLanguage();
-        applyTheme();
         updateLabels();
+        applyTheme();
     }
 
     private void bindViews() {
         headerTitle = findViewById(R.id.headerTitle);
         backBtn = findViewById(R.id.backBtn);
         scrollView = findViewById(R.id.scrollView);
+        contactHeader = findViewById(R.id.contactHeader);
+        contactName = findViewById(R.id.contactName);
+        contactEmail = findViewById(R.id.contactEmail);
+        supportLabel = findViewById(R.id.supportLabel);
+        contactQr = findViewById(R.id.contactQr);
 
         backBtn.setOnClickListener(v -> MainActivity.goToMain(this));
+
+        View.OnClickListener openSupport = v -> openSupportPage();
+        if (contactQr != null) contactQr.setOnClickListener(openSupport);
+        if (supportLabel != null) supportLabel.setOnClickListener(openSupport);
+    }
+
+    private void openSupportPage() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URL));
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.aboutNoBrowser, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -66,6 +96,8 @@ public class AboutActivity extends AppCompatActivity {
     private void applyTheme() {
         int bg = ThemeHelper.getBackgroundColor(theme);
         int onBg = ThemeHelper.getOnBackgroundColor(theme);
+
+        ThemeHelper.applyTheme(this, theme, settings.getAccentColorIndex());
 
         findViewById(android.R.id.content).getRootView().setBackgroundColor(bg);
 
@@ -115,6 +147,18 @@ public class AboutActivity extends AppCompatActivity {
     private void updateLabels() {
         if (headerTitle != null) {
             headerTitle.setText(Translations.getAbout(lang));
+        }
+        if (contactHeader != null) {
+            contactHeader.setText(Translations.getContact(lang));
+        }
+        if (contactName != null) {
+            contactName.setText("Tobias Reichel");
+        }
+        if (contactEmail != null) {
+            contactEmail.setText(CONTACT_EMAIL);
+        }
+        if (supportLabel != null) {
+            supportLabel.setText(Translations.getSupport(lang));
         }
     }
 }

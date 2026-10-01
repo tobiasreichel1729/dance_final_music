@@ -1,24 +1,22 @@
 package de.dancefinalmusic;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.media.MediaPlayer;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,24 +24,17 @@ import de.dancefinalmusic.util.SettingsManager;
 import de.dancefinalmusic.util.ThemeHelper;
 import de.dancefinalmusic.util.Translations;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
-public class DanceTimerActivity extends AppCompatActivity {
-
-    private static final String TAG = "DanceTimer";
-
-    private static final int PHASE_IDLE = 0;
-    private static final int PHASE_MUSIC = 1;
-    private static final int PHASE_PAUSE_BETWEEN_MUSIC = 2;
-    private static final int PHASE_ROUND_BREAK = 3;
+public class DanceTimerActivity extends AppCompatActivity implements DanceSession.StateListener {
 
     private SettingsManager settings;
     private String theme;
     private int accentIndex;
     private int accentColor;
     private String lang;
+
+    private final DanceSession session = DanceSession.getInstance();
 
     private TextView headerTitle;
     private ImageView backBtn;
@@ -58,48 +49,7 @@ public class DanceTimerActivity extends AppCompatActivity {
     private Button skipDanceBtn;
     private Button backDanceBtn;
 
-    private int currentPhase = PHASE_IDLE;
-    private int currentDanceIndex = 0;
-    private int currentRound = 0;
-    private int totalRounds = 1;
-    private boolean isRunning = false;
-    private int timeRemaining = 0;
-
-    private List<String> selectedDances;
-
-    private MediaPlayer mediaPlayer;
-    private MediaPlayer preloadedPlayer;
-    private Uri preloadedUri;
-
-    private final Stack<int[]> history = new Stack<>();
-
     private GestureDetector gestureDetector;
-
-    private final Handler timerHandler = new Handler(Looper.getMainLooper());
-    private final Runnable timerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (!isRunning) return;
-
-            timeRemaining--;
-
-            if (timeRemaining <= 0) {
-                timeRemaining = 0;
-                stopMusic();
-                advancePhase();
-            }
-
-            updateUI();
-            if (isRunning) {
-                timerHandler.postDelayed(this, 1000);
-            }
-        }
-    };
-
-    private final MediaPlayer.OnCompletionListener onSongComplete = mp -> {
-        if (!isRunning || currentPhase != PHASE_MUSIC) return;
-        advanceFromMusicFinished();
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,8 +61,8 @@ public class DanceTimerActivity extends AppCompatActivity {
         accentIndex = settings.getAccentColorIndex();
         accentColor = ThemeHelper.getAccentColor(accentIndex);
         lang = settings.getLanguage();
-        selectedDances = settings.getSelectedDancesList();
 
+        session.attach(this);
         bindViews();
         setupGestures();
         applyTheme();
@@ -127,18 +77,22 @@ public class DanceTimerActivity extends AppCompatActivity {
         accentIndex = settings.getAccentColorIndex();
         accentColor = ThemeHelper.getAccentColor(accentIndex);
         lang = settings.getLanguage();
-        selectedDances = settings.getSelectedDancesList();
+        session.addListener(this);
         applyTheme();
         updateLabels();
         updateUI();
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        session.removeListener(this);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        timerHandler.removeCallbacks(timerRunnable);
-        isRunning = false;
-        releaseAllPlayers();
+        session.removeListener(this);
     }
 
     @Override
@@ -156,8 +110,14 @@ public class DanceTimerActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        stopDance();
+        session.stopDance();
+        stopSessionService();
         MainActivity.goToMain(this);
+    }
+
+    @Override
+    public void onStateChanged() {
+        runOnUiThread(this::updateUI);
     }
 
     private void bindViews() {
@@ -175,27 +135,29 @@ public class DanceTimerActivity extends AppCompatActivity {
         backDanceBtn = findViewById(R.id.backDanceBtn);
 
         backBtn.setOnClickListener(v -> {
-            stopDance();
+            session.stopDance();
+            stopSessionService();
             MainActivity.goToMain(this);
         });
 
         startStopButton.setOnClickListener(v -> {
-            if (isRunning) {
-                stopDance();
+            if (session.isRunning()) {
+                session.stopDance();
+                stopSessionService();
             } else {
-                startDance();
+                startSession();
             }
         });
 
         skipDanceBtn.setOnClickListener(v -> {
-            if (isRunning) {
-                skipForward();
+            if (session.isRunning()) {
+                session.skipForward();
             }
         });
 
         backDanceBtn.setOnClickListener(v -> {
-            if (isRunning && !history.isEmpty()) {
-                goBack();
+            if (session.isRunning() && session.hasHistory()) {
+                session.goBack();
             }
         });
     }
@@ -211,12 +173,12 @@ public class DanceTimerActivity extends AppCompatActivity {
                 if (Math.abs(diffX) > Math.abs(e2.getY() - e1.getY())) {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
-                            if (isRunning && !history.isEmpty()) {
-                                goBack();
+                            if (session.isRunning() && session.hasHistory()) {
+                                session.goBack();
                             }
                         } else {
-                            if (isRunning) {
-                                skipForward();
+                            if (session.isRunning()) {
+                                session.skipForward();
                             }
                         }
                         return true;
@@ -233,306 +195,35 @@ public class DanceTimerActivity extends AppCompatActivity {
         });
     }
 
-    // --- Skip / Back ---
+    private void startSession() {
+        List<String> dances = settings.getSelectedDancesList();
+        if (dances.isEmpty()) return;
 
-    private void skipForward() {
-        if (!isRunning) return;
-
-        pushHistory();
-        stopMusic();
-        advancePhase();
-        updateUI();
-        if (isRunning) {
-            timerHandler.removeCallbacks(timerRunnable);
-            timerHandler.postDelayed(timerRunnable, 1000);
-        }
-    }
-
-    private void goBack() {
-        if (!isRunning || history.isEmpty()) return;
-
-        stopMusic();
-        timerHandler.removeCallbacks(timerRunnable);
-
-        int[] prev = history.pop();
-        currentRound = prev[0];
-        currentDanceIndex = prev[1];
-
-        currentPhase = PHASE_MUSIC;
-        timeRemaining = settings.getMusicDuration();
-        Uri song = getNextRandomUri();
-        playSong(song);
-        preloadNextSongForNext();
-        updateUI();
-        timerHandler.postDelayed(timerRunnable, 1000);
-    }
-
-    private void pushHistory() {
-        history.push(new int[]{currentRound, currentDanceIndex});
-    }
-
-    // --- Music playback with preloading ---
-
-    private void releaseAllPlayers() {
-        releasePlayer(mediaPlayer);
-        mediaPlayer = null;
-        releasePlayer(preloadedPlayer);
-        preloadedPlayer = null;
-        preloadedUri = null;
-    }
-
-    private void releasePlayer(MediaPlayer mp) {
-        if (mp == null) return;
-        try {
-            if (mp.isPlaying()) mp.stop();
-            mp.release();
-        } catch (Exception e) {
-            Log.e(TAG, "Error releasing MediaPlayer", e);
-        }
-    }
-
-    private Uri getNextRandomUri() {
-        if (selectedDances == null || currentDanceIndex >= selectedDances.size()) return null;
-        String style = settings.getDanceStyle();
-        String danceName = selectedDances.get(currentDanceIndex);
-        return settings.getRandomAudioFromFolder(this, style, danceName);
-    }
-
-    private void preloadNextSong() {
-        releasePlayer(preloadedPlayer);
-        preloadedPlayer = null;
-        preloadedUri = null;
-
-        Uri nextUri = getNextRandomUri();
-        if (nextUri == null) return;
-
-        final Uri preloadUri = nextUri;
-        MediaPlayer player = new MediaPlayer();
-        player.setVolume(1.0f, 1.0f);
-
-        new Thread(() -> {
-            try {
-                player.setDataSource(this, preloadUri);
-                player.prepare();
-                runOnUiThread(() -> {
-                    if (preloadedPlayer != null) {
-                        releasePlayer(preloadedPlayer);
-                    }
-                    preloadedPlayer = player;
-                    preloadedUri = preloadUri;
-                    Log.d(TAG, "Preloaded: " + preloadUri);
-                });
-            } catch (Exception e) {
-                Log.e(TAG, "Error preloading", e);
-                player.release();
-            }
-        }).start();
-    }
-
-    private void playSong(Uri uri) {
-        releasePlayer(mediaPlayer);
-        mediaPlayer = null;
-
-        if (uri == null) return;
-
-        if (preloadedPlayer != null && preloadedUri != null && preloadedUri.equals(uri)) {
-            mediaPlayer = preloadedPlayer;
-            preloadedPlayer = null;
-            preloadedUri = null;
-            mediaPlayer.setOnCompletionListener(onSongComplete);
-            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                Log.e(TAG, "Playback error: " + what);
-                advanceFromMusicFinished();
-                return true;
-            });
-            if (!mediaPlayer.isPlaying()) {
-                mediaPlayer.start();
-            }
-            Log.d(TAG, "Playing preloaded: " + uri);
+        String firstDance = dances.get(0);
+        if (settings.getRandomAudioFromFolder(this, settings.getDanceStyle(), firstDance) == null) {
+            Toast.makeText(this,
+                    Translations.getMusicAccessLostHint(lang) + " (" + firstDance + ")",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
-        releasePlayer(preloadedPlayer);
-        preloadedPlayer = null;
-        preloadedUri = null;
-
-        final Uri playUri = uri;
-        MediaPlayer player = new MediaPlayer();
-        player.setVolume(1.0f, 1.0f);
-        player.setOnCompletionListener(onSongComplete);
-        player.setOnErrorListener((mp, what, extra) -> {
-            Log.e(TAG, "Playback error: " + what);
-            advanceFromMusicFinished();
-            return true;
-        });
-
-        new Thread(() -> {
-            try {
-                player.setDataSource(this, playUri);
-                player.prepare();
-                runOnUiThread(() -> {
-                    if (isRunning && currentPhase == PHASE_MUSIC) {
-                        mediaPlayer = player;
-                        mediaPlayer.start();
-                        Log.d(TAG, "Playing: " + playUri);
-                    } else {
-                        player.release();
-                    }
-                });
-            } catch (Exception e) {
-                Log.e(TAG, "Error preparing", e);
-                player.release();
-            }
-        }).start();
+        requestNotificationPermissionIfNeeded();
+        session.start(this);
+        startForegroundService(new Intent(this, DanceSessionService.class)
+                .setAction(DanceSessionService.ACTION_START));
     }
 
-    private void stopMusic() {
-        if (mediaPlayer != null) {
-            try {
-                if (mediaPlayer.isPlaying()) mediaPlayer.pause();
-            } catch (Exception e) {
-                Log.e(TAG, "Error stopping music", e);
-            }
+    private void stopSessionService() {
+        startService(new Intent(this, DanceSessionService.class)
+                .setAction(DanceSessionService.ACTION_STOP));
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= 33
+                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 100);
         }
-    }
-
-    // --- Timer logic ---
-
-    private void startDance() {
-        selectedDances = settings.getSelectedDancesList();
-        if (selectedDances.isEmpty()) return;
-
-        currentDanceIndex = 0;
-        currentRound = 0;
-        totalRounds = settings.getBurstCount();
-        if (totalRounds < 1) totalRounds = 1;
-        isRunning = true;
-        history.clear();
-
-        currentPhase = PHASE_MUSIC;
-        timeRemaining = settings.getMusicDuration();
-
-        Uri firstSong = getNextRandomUri();
-        playSong(firstSong);
-        preloadNextSongForNext();
-
-        updateUI();
-        timerHandler.postDelayed(timerRunnable, 1000);
-    }
-
-    private void preloadNextSongForNext() {
-        if (currentDanceIndex + 1 < selectedDances.size()) {
-            currentDanceIndex++;
-            preloadNextSong();
-            currentDanceIndex--;
-        } else if (currentRound + 1 < totalRounds) {
-            preloadNextSong();
-        }
-    }
-
-    private void stopDance() {
-        timerHandler.removeCallbacks(timerRunnable);
-        isRunning = false;
-        currentPhase = PHASE_IDLE;
-        currentDanceIndex = 0;
-        currentRound = 0;
-        timeRemaining = 0;
-        history.clear();
-        releaseAllPlayers();
-        updateUI();
-    }
-
-    private void advanceFromMusicFinished() {
-        pushHistory();
-        stopMusic();
-        advancePhase();
-        updateUI();
-        if (isRunning) {
-            timerHandler.removeCallbacks(timerRunnable);
-            timerHandler.postDelayed(timerRunnable, 1000);
-        }
-    }
-
-    private void advancePhase() {
-        switch (currentPhase) {
-            case PHASE_MUSIC:
-                advanceFromPauseOrNextDance();
-                break;
-
-            case PHASE_PAUSE_BETWEEN_MUSIC:
-                nextDanceOrNextRound();
-                break;
-
-            case PHASE_ROUND_BREAK:
-                startNextRound();
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    private void advanceFromPauseOrNextDance() {
-        boolean hasNextDance = currentDanceIndex + 1 < selectedDances.size();
-        boolean hasNextRound = currentRound + 1 < totalRounds;
-
-        if (hasNextDance) {
-            int pause = settings.getMusicPause();
-            if (pause > 0) {
-                currentPhase = PHASE_PAUSE_BETWEEN_MUSIC;
-                timeRemaining = pause;
-            } else {
-                nextDanceOrNextRound();
-            }
-        } else if (hasNextRound) {
-            int breakTime = settings.getBurstPause();
-            if (breakTime > 0) {
-                currentDanceIndex++;
-                currentRound++;
-                currentPhase = PHASE_ROUND_BREAK;
-                timeRemaining = breakTime;
-            } else {
-                nextDanceOrNextRound();
-            }
-        } else {
-            nextDanceOrNextRound();
-        }
-    }
-
-    private void nextDanceOrNextRound() {
-        currentDanceIndex++;
-        releasePlayer(mediaPlayer);
-        mediaPlayer = null;
-
-        if (currentDanceIndex < selectedDances.size()) {
-            currentPhase = PHASE_MUSIC;
-            timeRemaining = settings.getMusicDuration();
-            Uri song = getNextRandomUri();
-            playSong(song);
-            preloadNextSongForNext();
-        } else {
-            currentRound++;
-            if (currentRound < totalRounds) {
-                int breakTime = settings.getBurstPause();
-                if (breakTime > 0) {
-                    currentPhase = PHASE_ROUND_BREAK;
-                    timeRemaining = breakTime;
-                } else {
-                    startNextRound();
-                }
-            } else {
-                stopDance();
-            }
-        }
-    }
-
-    private void startNextRound() {
-        currentDanceIndex = 0;
-        currentPhase = PHASE_MUSIC;
-        timeRemaining = settings.getMusicDuration();
-        Uri song = getNextRandomUri();
-        playSong(song);
-        preloadNextSongForNext();
     }
 
     // --- UI ---
@@ -542,6 +233,8 @@ public class DanceTimerActivity extends AppCompatActivity {
         int onBg = ThemeHelper.getOnBackgroundColor(theme);
         int surface = ThemeHelper.getSurfaceColor(theme);
         int onSurface = ThemeHelper.getOnSurfaceVariantColor(theme);
+
+        ThemeHelper.applyTheme(this, theme, accentIndex);
 
         findViewById(android.R.id.content).getRootView().setBackgroundColor(bg);
 
@@ -598,7 +291,7 @@ public class DanceTimerActivity extends AppCompatActivity {
         startStopButton.setBackgroundTintList(null);
         GradientDrawable btnDrawable = new GradientDrawable();
         btnDrawable.setCornerRadius(dpToPx(14));
-        btnDrawable.setColor(isRunning ? 0xFFE53935 : accentColor);
+        btnDrawable.setColor(session.isRunning() ? 0xFFE53935 : accentColor);
         startStopButton.setBackground(btnDrawable);
         startStopButton.setTextColor(Color.WHITE);
     }
@@ -616,7 +309,7 @@ public class DanceTimerActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        if (timeText != null) timeText.setText(formatTime(timeRemaining));
+        if (timeText != null) timeText.setText(formatTime(session.getTimeRemaining()));
         updateRing();
         updatePhaseLabel();
         updateProgressText();
@@ -629,31 +322,32 @@ public class DanceTimerActivity extends AppCompatActivity {
     private void updateRing() {
         if (timerRing == null) return;
         int total = 1;
-        switch (currentPhase) {
-            case PHASE_MUSIC:
+        switch (session.getPhase()) {
+            case DanceSession.PHASE_MUSIC:
                 total = settings.getMusicDuration();
                 break;
-            case PHASE_PAUSE_BETWEEN_MUSIC:
+            case DanceSession.PHASE_PAUSE_BETWEEN_MUSIC:
                 total = settings.getMusicPause();
                 break;
-            case PHASE_ROUND_BREAK:
+            case DanceSession.PHASE_ROUND_BREAK:
                 total = settings.getBurstPause();
                 break;
             default:
                 break;
         }
         if (total < 1) total = 1;
-        float remainingFraction = Math.max(0f, Math.min(1f, timeRemaining / (float) total));
+        float remainingFraction = Math.max(0f, Math.min(1f,
+                session.getTimeRemaining() / (float) total));
         timerRing.setProgressFraction(1f - remainingFraction);
     }
 
     private void updateSkipBackVisibility() {
         if (skipBackRow == null) return;
-        if (isRunning) {
+        if (session.isRunning()) {
             skipBackRow.setVisibility(View.VISIBLE);
             if (backDanceBtn != null) {
-                backDanceBtn.setEnabled(!history.isEmpty());
-                backDanceBtn.setAlpha(history.isEmpty() ? 0.3f : 1.0f);
+                backDanceBtn.setEnabled(session.hasHistory());
+                backDanceBtn.setAlpha(session.hasHistory() ? 1.0f : 0.3f);
             }
         } else {
             skipBackRow.setVisibility(View.GONE);
@@ -661,36 +355,36 @@ public class DanceTimerActivity extends AppCompatActivity {
     }
 
     private void updatePhaseLabel() {
-        if (phaseLabel == null) return;
-        if (nextDanceLabel == null) return;
-        switch (currentPhase) {
-            case PHASE_IDLE:
-                if (selectedDances != null && !selectedDances.isEmpty()) {
-                    phaseLabel.setText(selectedDances.get(0));
+        if (phaseLabel == null || nextDanceLabel == null) return;
+        List<String> dances = session.getSelectedDances();
+        switch (session.getPhase()) {
+            case DanceSession.PHASE_IDLE:
+                if (dances != null && !dances.isEmpty()) {
+                    phaseLabel.setText(dances.get(0));
                 } else {
                     phaseLabel.setText("");
                 }
                 nextDanceLabel.setText("");
                 break;
-            case PHASE_MUSIC:
-                if (selectedDances != null && currentDanceIndex < selectedDances.size()) {
-                    phaseLabel.setText(selectedDances.get(currentDanceIndex));
+            case DanceSession.PHASE_MUSIC:
+                if (dances != null && session.getCurrentDanceIndex() < dances.size()) {
+                    phaseLabel.setText(dances.get(session.getCurrentDanceIndex()));
                 }
                 nextDanceLabel.setText("");
                 break;
-            case PHASE_PAUSE_BETWEEN_MUSIC:
+            case DanceSession.PHASE_PAUSE_BETWEEN_MUSIC:
                 phaseLabel.setText(Translations.getPauseLabel(lang));
-                if (selectedDances != null && currentDanceIndex + 1 < selectedDances.size()) {
-                    nextDanceLabel.setText("\u2192 " + selectedDances.get(currentDanceIndex + 1));
+                if (dances != null && session.getCurrentDanceIndex() + 1 < dances.size()) {
+                    nextDanceLabel.setText("\u2192 " + dances.get(session.getCurrentDanceIndex() + 1));
                 } else {
                     nextDanceLabel.setText("");
                 }
                 break;
-            case PHASE_ROUND_BREAK:
+            case DanceSession.PHASE_ROUND_BREAK:
                 phaseLabel.setText(Translations.getPauseLabel(lang) + " (" +
-                        (currentRound + 1) + "/" + totalRounds + ")");
-                if (selectedDances != null && !selectedDances.isEmpty()) {
-                    nextDanceLabel.setText("\u2192 " + selectedDances.get(0));
+                        (session.getCurrentRound() + 1) + "/" + session.getTotalRounds() + ")");
+                if (dances != null && !dances.isEmpty()) {
+                    nextDanceLabel.setText("\u2192 " + dances.get(0));
                 } else {
                     nextDanceLabel.setText("");
                 }
@@ -700,26 +394,33 @@ public class DanceTimerActivity extends AppCompatActivity {
 
     private void updateProgressText() {
         if (progressText == null) return;
-        if (selectedDances == null || selectedDances.isEmpty()) {
+        List<String> dances = session.getSelectedDances();
+        if (dances == null || dances.isEmpty()) {
             progressText.setText("0/0");
         } else {
-            String roundInfo = totalRounds > 1 ? " (" + (currentRound + 1) + "/" + totalRounds + ")" : "";
-            progressText.setText((currentDanceIndex + 1) + "/" + selectedDances.size() + roundInfo);
+            String roundInfo = session.getTotalRounds() > 1
+                    ? " (" + (session.getCurrentRound() + 1) + "/" + session.getTotalRounds() + ")"
+                    : "";
+            progressText.setText((session.getCurrentDanceIndex() + 1) + "/"
+                    + dances.size() + roundInfo);
         }
     }
 
     private void updateStartStopButtonText() {
         if (startStopButton == null) return;
-        startStopButton.setText(isRunning ? Translations.getStop(lang) : Translations.getStart(lang));
+        startStopButton.setText(session.isRunning()
+                ? Translations.getStop(lang) : Translations.getStart(lang));
     }
 
     private void rebuildDots() {
         if (dotsContainer == null) return;
         dotsContainer.removeAllViews();
 
-        int total = selectedDances != null ? selectedDances.size() : 0;
+        List<String> dances = session.getSelectedDances();
+        int total = dances != null ? dances.size() : 0;
         if (total == 0) return;
 
+        int currentIndex = session.getCurrentDanceIndex();
         for (int i = 0; i < total; i++) {
             View dot = new View(this);
             int size = dpToPx(10);
@@ -728,7 +429,7 @@ public class DanceTimerActivity extends AppCompatActivity {
             GradientDrawable dotBg = new GradientDrawable();
             dotBg.setShape(GradientDrawable.OVAL);
 
-            if (i <= currentDanceIndex) {
+            if (i <= currentIndex) {
                 dotBg.setColor(accentColor);
             } else {
                 dotBg.setColor(Color.TRANSPARENT);

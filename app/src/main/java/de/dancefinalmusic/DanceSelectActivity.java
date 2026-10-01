@@ -2,17 +2,22 @@ package de.dancefinalmusic;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import de.dancefinalmusic.util.SettingsManager;
@@ -179,6 +184,7 @@ public class DanceSelectActivity extends AppCompatActivity {
                 View view = super.getView(position, convertView, parent);
                 TextView danceName = view.findViewById(R.id.danceName);
                 TextView checkMark = view.findViewById(R.id.checkMark);
+                TextView danceBpm = view.findViewById(R.id.danceBpm);
 
                 String dance = sortedDances.get(position);
                 int selectedIndex = selectedDances.indexOf(dance);
@@ -187,8 +193,10 @@ public class DanceSelectActivity extends AppCompatActivity {
                 int onSurface = ThemeHelper.getOnSurfaceColor(theme);
                 int accent = ThemeHelper.getAccentColor(accentIndex);
 
+                String displayName = Translations.getDanceName(lang, dance);
+
                 if (selectedIndex >= 0) {
-                    danceName.setText((selectedIndex + 1) + ". " + dance);
+                    danceName.setText((selectedIndex + 1) + ". " + displayName);
                     danceName.setTextColor(Color.WHITE);
 
                     GradientDrawable bg = new GradientDrawable();
@@ -202,7 +210,7 @@ public class DanceSelectActivity extends AppCompatActivity {
 
                     checkMark.setVisibility(View.GONE);
                 } else {
-                    danceName.setText(dance);
+                    danceName.setText(displayName);
                     danceName.setTextColor(onSurface);
 
                     GradientDrawable bg = new GradientDrawable();
@@ -217,6 +225,17 @@ public class DanceSelectActivity extends AppCompatActivity {
 
                     checkMark.setVisibility(View.GONE);
                 }
+
+                int bpmTarget = settingsManager.getBpmTarget(dance);
+                int badgeColor = selectedIndex >= 0 ? Color.WHITE : accent;
+                danceBpm.setText(bpmTarget > 0 ? bpmTarget + " BPM" : Translations.getAuto(lang));
+                danceBpm.setTextColor(badgeColor);
+                GradientDrawable bpmBg = new GradientDrawable();
+                bpmBg.setCornerRadius(dpToPx(10));
+                bpmBg.setStroke(dpToPx(1), badgeColor);
+                bpmBg.setColor(Color.TRANSPARENT);
+                danceBpm.setBackground(bpmBg);
+                danceBpm.setOnClickListener(v -> showBpmDialog(dance));
 
                 return view;
             }
@@ -268,6 +287,71 @@ public class DanceSelectActivity extends AppCompatActivity {
             settingsManager.setSelectedDancesList(selectedDances);
             finish();
         });
+    }
+
+    private void showBpmDialog(String dance) {
+        int initial = settingsManager.getBpmTarget(dance);
+        int accent = ThemeHelper.getAccentColor(accentIndex);
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        int pad = dpToPx(20);
+        root.setPadding(pad, dpToPx(16), pad, dpToPx(8));
+        root.addView(ThemeHelper.createDialogTitle(this, dance, theme));
+
+        TextView value = new TextView(this);
+        value.setTextSize(34);
+        value.setGravity(Gravity.CENTER);
+        value.setTypeface(null, Typeface.BOLD);
+        value.setTextColor(ThemeHelper.getOnSurfaceColor(theme));
+        root.addView(value);
+
+        SeekBar slider = new SeekBar(this);
+        slider.setMax(200);
+        slider.setProgressTintList(ColorStateList.valueOf(accent));
+        slider.setThumbTintList(ColorStateList.valueOf(accent));
+        root.addView(slider);
+
+        TextView hint = new TextView(this);
+        hint.setText(Translations.getBpmDialogHint(lang));
+        hint.setTextSize(13);
+        hint.setTextColor(ThemeHelper.getOnSurfaceVariantColor(theme));
+        hint.setGravity(Gravity.CENTER);
+        hint.setPadding(0, dpToPx(4), 0, dpToPx(8));
+        root.addView(hint);
+
+        Runnable update = () -> {
+            int p = slider.getProgress();
+            value.setText(p == 0 ? Translations.getAuto(lang) : p + " BPM");
+        };
+
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                update.run();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+        slider.setProgress(initial);
+        update.run();
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(root)
+                .setNegativeButton(Translations.getCancel(lang), null)
+                .setPositiveButton(Translations.getConfirm(lang), (d, w) -> {
+                    settingsManager.setBpmTarget(dance, slider.getProgress());
+                    refreshAdapter();
+                })
+                .create();
+        dialog.show();
+        ThemeHelper.styleDialog(dialog, theme, accentIndex);
     }
 
     private int dpToPx(int dp) {

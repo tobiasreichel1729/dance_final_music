@@ -16,9 +16,22 @@
         android:textSize="15sp" />
 
     <TextView
+        android:id="@+id/danceBpm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="Auto"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
         android:id="@+id/checkMark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
         android:text=""
         android:textColor="@color/accent"
         android:textSize="18sp"

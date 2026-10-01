@@ -16,7 +16,9 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,7 +30,7 @@ import de.dancefinalmusic.util.Translations;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SingleDancePlayer.StateListener {
 
     private static final int DURATION_MIN = 10;
     private static final int DURATION_MAX = 300;
@@ -39,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int ROUNDS_MAX = 10;
     private static final int BURST_PAUSE_MIN = 0;
     private static final int BURST_PAUSE_MAX = 60;
+    private static final int TEMPO_MIN = 50;
+    private static final int TEMPO_MAX = 150;
+    private static final int TEMPO_STEP = 5;
 
     private static final long HOLD_INITIAL_DELAY_MS = 400;
     private static final long HOLD_MIN_DELAY_MS = 40;
@@ -60,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         applyThemeAndColors();
         setupListeners();
         updateValues();
+        de.dancefinalmusic.util.FolderGuard.promptOnFirstRun(this);
     }
 
     @Override
@@ -68,6 +74,25 @@ public class MainActivity extends AppCompatActivity {
         lang = settings.getLanguage();
         applyThemeAndColors();
         updateValues();
+        SingleDancePlayer.getInstance().addListener(this);
+        rebuildSingleDanceList();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SingleDancePlayer.getInstance().removeListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SingleDancePlayer.getInstance().stop();
+    }
+
+    @Override
+    public void onPlaybackStateChanged() {
+        runOnUiThread(this::rebuildSingleDanceList);
     }
 
     private void applyThemeAndColors() {
@@ -86,29 +111,29 @@ public class MainActivity extends AppCompatActivity {
         binding.getRoot().setBackgroundColor(bg);
         binding.appTitle.setTextColor(onBg);
         binding.settingsBtn.setImageTintList(ColorStateList.valueOf(onBg));
-
-        GradientDrawable settingsCircle = new GradientDrawable();
-        settingsCircle.setShape(GradientDrawable.OVAL);
-        settingsCircle.setColor(ThemeHelper.getSurfaceVariantColor(theme));
-        binding.settingsBtn.setBackground(settingsCircle);
+        binding.settingsBtn.setBackground(ThemeHelper.createCircleBackground(theme));
 
         binding.danceStyleCard.setBackgroundColor(surface);
         binding.selectDancesCard.setBackgroundColor(surface);
+        binding.singleDanceCard.setBackgroundColor(surface);
         binding.musicTimingCard.setBackgroundColor(surface);
         binding.burstSettingsCard.setBackgroundColor(surface);
 
         binding.styleHeader.setTextColor(accent);
         binding.selectDancesLabel.setTextColor(accent);
         binding.selectDancesSublabel.setTextColor(onSurfaceVariant);
+        binding.singleDanceTitle.setTextColor(accent);
         binding.musicTimingLabel.setTextColor(accent);
         binding.burstSettingsLabel.setTextColor(accent);
 
         binding.durationLabel.setTextColor(onSurface);
         binding.pauseLabel.setTextColor(onSurface);
+        binding.tempoLabel.setTextColor(onSurface);
         binding.roundsLabel.setTextColor(onSurface);
         binding.burstPauseLabel.setTextColor(onSurface);
         binding.durationValue.setTextColor(onBg);
         binding.pauseValue.setTextColor(onBg);
+        binding.tempoValue.setTextColor(onBg);
         binding.roundsValue.setTextColor(onBg);
         binding.burstPauseValue.setTextColor(onBg);
 
@@ -117,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
         styleStepperButton(binding.durationPlusBtn, accent);
         styleStepperButton(binding.pauseMinusBtn, accent);
         styleStepperButton(binding.pausePlusBtn, accent);
+        styleStepperButton(binding.tempoMinusBtn, accent);
+        styleStepperButton(binding.tempoPlusBtn, accent);
         styleStepperButton(binding.roundsMinusBtn, accent);
         styleStepperButton(binding.roundsPlusBtn, accent);
         styleStepperButton(binding.burstPauseMinusBtn, accent);
@@ -165,9 +192,11 @@ public class MainActivity extends AppCompatActivity {
         binding.lateinBtn.setText(Translations.getLateinLabel(lang));
         binding.selectDancesLabel.setText(Translations.getSelectDances(lang));
         binding.selectDancesSublabel.setText(getSelectedDancesSublabel(lang));
+        binding.singleDanceTitle.setText(Translations.getSingleDanceTitle(lang));
         binding.musicTimingLabel.setText(Translations.getMusicTiming(lang));
         binding.durationLabel.setText(Translations.getMusicDuration(lang));
         binding.pauseLabel.setText(Translations.getMusicPause(lang));
+        binding.tempoLabel.setText(Translations.getTempo(lang));
         binding.burstSettingsLabel.setText(Translations.getBurstSettings(lang));
         binding.roundsLabel.setText(Translations.getRoundsCountLabel(lang));
         binding.burstPauseLabel.setText(Translations.getBurstPause(lang));
@@ -177,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateValues() {
         binding.durationValue.setText(settings.getMusicDuration() + "s");
         binding.pauseValue.setText(settings.getMusicPause() + "s");
+        binding.tempoValue.setText(Math.round(settings.getTempo() * 100) + "%");
         binding.roundsValue.setText(String.valueOf(settings.getBurstCount()));
         binding.burstPauseValue.setText(settings.getBurstPause() + "s");
     }
@@ -186,7 +216,11 @@ public class MainActivity extends AppCompatActivity {
         if (dances.isEmpty()) {
             return Translations.getSelectDancesHint(lang);
         }
-        return String.join(", ", dances);
+        List<String> display = new ArrayList<>();
+        for (String dance : dances) {
+            display.add(Translations.getDanceName(lang, dance));
+        }
+        return String.join(", ", display);
     }
 
     private void setupListeners() {
@@ -203,6 +237,8 @@ public class MainActivity extends AppCompatActivity {
         setupHoldToRepeat(binding.durationPlusBtn, () -> changeDuration(DURATION_STEP));
         setupHoldToRepeat(binding.pauseMinusBtn, () -> changePause(-1));
         setupHoldToRepeat(binding.pausePlusBtn, () -> changePause(1));
+        setupHoldToRepeat(binding.tempoMinusBtn, () -> changeTempo(-TEMPO_STEP));
+        setupHoldToRepeat(binding.tempoPlusBtn, () -> changeTempo(TEMPO_STEP));
         setupHoldToRepeat(binding.roundsMinusBtn, () -> changeRounds(-1));
         setupHoldToRepeat(binding.roundsPlusBtn, () -> changeRounds(1));
         setupHoldToRepeat(binding.burstPauseMinusBtn, () -> changeBurstPause(-1));
@@ -232,22 +268,78 @@ public class MainActivity extends AppCompatActivity {
                             settings.setBurstPause(value);
                             updateValues();
                         }));
+        binding.tempoValue.setOnClickListener(v ->
+                startInlineEdit(binding.tempoValue, Math.round(settings.getTempo() * 100),
+                        TEMPO_MIN, TEMPO_MAX, TEMPO_STEP, value -> {
+                            settings.setTempo(value / 100f);
+                            SingleDancePlayer.getInstance().updateTempo();
+                            updateValues();
+                        }));
 
         binding.startButton.setOnClickListener(v -> {
+            SingleDancePlayer.getInstance().stop();
             List<String> dances = settings.getSelectedDancesList();
             if (dances.isEmpty()) {
                 startActivity(new Intent(this, DanceSelectActivity.class));
             } else {
+                if (!de.dancefinalmusic.util.FolderGuard.ensureFolders(this, dances)) {
+                    return;
+                }
                 startActivity(new Intent(this, DanceTimerActivity.class));
             }
         });
     }
 
+    private void rebuildSingleDanceList() {
+        LinearLayout list = binding.singleDanceList;
+        list.removeAllViews();
+
+        String theme = ThemeHelper.getEffectiveTheme(this, settings.getTheme());
+        int accent = ThemeHelper.getAccentColor(settings.getAccentColorIndex());
+        String style = settings.getDanceStyle();
+        String playingDance = SingleDancePlayer.getInstance().getPlayingDance();
+
+        for (String dance : settings.getAvailableDances(style)) {
+            boolean isPlaying = dance.equals(playingDance) && SingleDancePlayer.getInstance().isPlaying();
+            Button btn = new Button(this);
+            btn.setText(Translations.getDanceName(settings.getLanguage(), dance));
+            btn.setTextSize(11);
+            btn.setAllCaps(false);
+            btn.setPadding(dpToPx(2), 0, dpToPx(2), 0);
+            btn.setMinWidth(0);
+            btn.setMinHeight(0);
+            applyToggleButton(btn, isPlaying, accent, theme);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
+                    dpToPx(44), 1f);
+            lp.setMargins(dpToPx(1), 0, dpToPx(1), 0);
+            btn.setOnClickListener(v -> {
+                SingleDancePlayer player = SingleDancePlayer.getInstance();
+                if (dance.equals(player.getPlayingDance())) {
+                    startActivity(new Intent(this, PlayerActivity.class));
+                } else {
+                    if (!de.dancefinalmusic.util.FolderGuard.ensureFolder(this, style, dance)) {
+                        return;
+                    }
+                    player.start(this, style, dance);
+                    startActivity(new Intent(this, PlayerActivity.class));
+                }
+            });
+            list.addView(btn, lp);
+        }
+    }
+
+    private void changeTempo(int delta) {
+        int percent = clamp(Math.round(settings.getTempo() * 100) + delta, TEMPO_MIN, TEMPO_MAX);
+        settings.setTempo(percent / 100f);
+        SingleDancePlayer.getInstance().updateTempo();
+        updateValues();
+    }
+
     private void setDanceStyle(String style) {
         if (style.equals(settings.getDanceStyle())) return;
         settings.setDanceStyle(style);
-        settings.setSelectedDancesList(new ArrayList<>());
         applyThemeAndColors();
+        rebuildSingleDanceList();
     }
 
     private void setupHoldToRepeat(Button btn, Runnable action) {

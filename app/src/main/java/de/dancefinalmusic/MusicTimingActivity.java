@@ -22,6 +22,9 @@ public class MusicTimingActivity extends AppCompatActivity {
     private static final int PAUSE_MIN = 0;
     private static final int PAUSE_MAX = 60;
     private static final int PAUSE_STEP = 1;
+    private static final float TEMPO_MIN = 0.5f;
+    private static final float TEMPO_MAX = 1.5f;
+    private static final float TEMPO_STEP = 0.05f;
 
     private SettingsManager settingsManager;
     private String theme;
@@ -38,9 +41,14 @@ public class MusicTimingActivity extends AppCompatActivity {
     private SeekBar pauseSlider;
     private TextView pauseMin;
     private TextView pauseMax;
+    private TextView tempoLabel;
+    private SeekBar tempoSlider;
+    private TextView tempoMin;
+    private TextView tempoMax;
 
     private int currentDuration;
     private int currentPause;
+    private float currentTempo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +61,7 @@ public class MusicTimingActivity extends AppCompatActivity {
         lang = settingsManager.getLanguage();
         currentDuration = settingsManager.getMusicDuration();
         currentPause = settingsManager.getMusicPause();
+        currentTempo = settingsManager.getTempo();
 
         initViews();
         applyTheme();
@@ -70,6 +79,10 @@ public class MusicTimingActivity extends AppCompatActivity {
         pauseSlider = findViewById(R.id.pauseSlider);
         pauseMin = findViewById(R.id.pauseMin);
         pauseMax = findViewById(R.id.pauseMax);
+        tempoLabel = findViewById(R.id.tempoLabel);
+        tempoSlider = findViewById(R.id.tempoSlider);
+        tempoMin = findViewById(R.id.tempoMin);
+        tempoMax = findViewById(R.id.tempoMax);
 
         headerTitle.setText(Translations.getMusicTiming(lang));
         backBtn.setOnClickListener(v -> MainActivity.goToMain(this));
@@ -81,6 +94,10 @@ public class MusicTimingActivity extends AppCompatActivity {
         int pauseProgress = (currentPause - PAUSE_MIN) / PAUSE_STEP;
         pauseSlider.setProgress(pauseProgress);
         updatePauseLabel(currentPause);
+
+        int tempoProgress = Math.round((currentTempo - TEMPO_MIN) / TEMPO_STEP);
+        tempoSlider.setProgress(tempoProgress);
+        updateTempoLabel(currentTempo);
     }
 
     @Override
@@ -100,10 +117,13 @@ public class MusicTimingActivity extends AppCompatActivity {
         headerTitle.setTextColor(onBg);
         durationLabel.setTextColor(onBg);
         pauseLabel.setTextColor(onBg);
+        tempoLabel.setTextColor(onBg);
         durationMin.setTextColor(onSurfaceVar);
         durationMax.setTextColor(onSurfaceVar);
         pauseMin.setTextColor(onSurfaceVar);
         pauseMax.setTextColor(onSurfaceVar);
+        tempoMin.setTextColor(onSurfaceVar);
+        tempoMax.setTextColor(onSurfaceVar);
 
         if (backBtn != null) {
             backBtn.setImageTintList(ColorStateList.valueOf(onBg));
@@ -162,6 +182,26 @@ public class MusicTimingActivity extends AppCompatActivity {
                 updatePauseLabel(currentPause);
             }
         });
+
+        tempoSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float value = TEMPO_MIN + progress * TEMPO_STEP;
+                updateTempoLabel(value);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                float value = TEMPO_MIN + seekBar.getProgress() * TEMPO_STEP;
+                currentTempo = value;
+                settingsManager.setTempo(currentTempo);
+                updateTempoLabel(currentTempo);
+            }
+        });
     }
 
     private void updateDurationLabel(int value) {
@@ -170,5 +210,9 @@ public class MusicTimingActivity extends AppCompatActivity {
 
     private void updatePauseLabel(int value) {
         pauseLabel.setText(Translations.getMusicPauseSeconds(lang, value));
+    }
+
+    private void updateTempoLabel(float value) {
+        tempoLabel.setText(Translations.getTempoPercent(lang, value));
     }
 }

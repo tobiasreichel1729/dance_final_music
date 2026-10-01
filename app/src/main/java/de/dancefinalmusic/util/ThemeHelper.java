@@ -10,68 +10,71 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
 public class ThemeHelper {
 
     public static final int[] ACCENT_COLORS = {
-            0xFF1E88E5, // blue
             0xFFE53935, // red
-            0xFF43A047, // green
             0xFFFB8C00, // orange
+            0xFFFDD835, // yellow
+            0xFF9CCC65, // light green
+            0xFF43A047, // green
+            0xFF26A69A, // teal
+            0xFF1E88E5, // blue
+            0xFF3949AB, // indigo
             0xFF8E24AA, // purple
-            0xFF00ACC1, // cyan
-            0xFFD81B60, // pink
-            0xFF6D4C41, // brown
-            0xFF546E7A, // blueGrey
-            0xFFFFB300  // amber
+            0xFFD81B60  // pink
     };
 
     public static final String[] ACCENT_COLOR_NAMES_DE = {
-            "Blau",
             "Rot",
-            "Grün",
             "Orange",
+            "Gelb",
+            "Hellgrün",
+            "Grün",
+            "Türkis",
+            "Blau",
+            "Indigo",
             "Lila",
-            "Cyan",
-            "Rosa",
-            "Braun",
-            "Blau-Grau",
-            "Bernstein"
+            "Rosa"
     };
 
     public static final String[] ACCENT_COLOR_NAMES_EN = {
-            "Blue",
             "Red",
-            "Green",
             "Orange",
+            "Yellow",
+            "Light Green",
+            "Green",
+            "Teal",
+            "Blue",
+            "Indigo",
             "Purple",
-            "Cyan",
-            "Pink",
-            "Brown",
-            "Blue-Grey",
-            "Amber"
+            "Pink"
     };
 
-    // Dark theme colors
-    private static final int DARK_BACKGROUND = 0xFF121212;
-    private static final int DARK_SURFACE = 0xFF1E1E1E;
-    private static final int DARK_SURFACE_VARIANT = 0xFF2C2C2C;
-    private static final int DARK_ON_BACKGROUND = 0xFFE0E0E0;
-    private static final int DARK_ON_SURFACE = 0xFFE0E0E0;
-    private static final int DARK_ON_SURFACE_VARIANT = 0xFFB0B0B0;
-    private static final int DARK_BORDER = 0xFF3C3C3C;
-    private static final int DARK_BUTTON_BG = 0xFF2A2A2A;
-    private static final int DARK_BUTTON_HOVER = 0xFF3A3A3A;
+    // Dark theme colors (violet-tinted)
+    private static final int DARK_BACKGROUND = 0xFF14111C;
+    private static final int DARK_SURFACE = 0xFF1D1929;
+    private static final int DARK_SURFACE_VARIANT = 0xFF2A2540;
+    private static final int DARK_ON_BACKGROUND = 0xFFEAE6F5;
+    private static final int DARK_ON_SURFACE = 0xFFEAE6F5;
+    private static final int DARK_ON_SURFACE_VARIANT = 0xFFB6AFCE;
+    private static final int DARK_BORDER = 0xFF3B3454;
+    private static final int DARK_BUTTON_BG = 0xFF262140;
+    private static final int DARK_BUTTON_HOVER = 0xFF352E52;
 
-    // Light theme colors
-    private static final int LIGHT_BACKGROUND = 0xFFF5F5F5;
+    // Light theme colors (lavender-tinted)
+    private static final int LIGHT_BACKGROUND = 0xFFF4F1FA;
     private static final int LIGHT_SURFACE = 0xFFFFFFFF;
-    private static final int LIGHT_SURFACE_VARIANT = 0xFFE8E8E8;
-    private static final int LIGHT_ON_BACKGROUND = 0xFF1A1A1A;
-    private static final int LIGHT_ON_SURFACE = 0xFF1A1A1A;
-    private static final int LIGHT_ON_SURFACE_VARIANT = 0xFF555555;
-    private static final int LIGHT_BORDER = 0xFFD0D0D0;
+    private static final int LIGHT_SURFACE_VARIANT = 0xFFECE8F6;
+    private static final int LIGHT_ON_BACKGROUND = 0xFF211C2E;
+    private static final int LIGHT_ON_SURFACE = 0xFF211C2E;
+    private static final int LIGHT_ON_SURFACE_VARIANT = 0xFF5F5877;
+    private static final int LIGHT_BORDER = 0xFFD6D0E8;
     private static final int LIGHT_BUTTON_BG = 0xFFFFFFFF;
-    private static final int LIGHT_BUTTON_HOVER = 0xFFE0E0E0;
+    private static final int LIGHT_BUTTON_HOVER = 0xFFE7E2F2;
 
     private ThemeHelper() {
     }
@@ -120,6 +123,43 @@ public class ThemeHelper {
         return "light".equals(theme) ? LIGHT_BORDER : DARK_BORDER;
     }
 
+    /**
+     * The app themes its UI by hand, but dialogs use the platform (light) theme,
+     * so the window background and buttons have to be colored explicitly.
+     */
+    public static void styleDialog(androidx.appcompat.app.AlertDialog dialog, String theme, int accentIndex) {
+        if (dialog == null) return;
+        android.view.Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(getSurfaceColor(theme)));
+        }
+        int[] buttons = {
+                android.content.DialogInterface.BUTTON_NEGATIVE,
+                android.content.DialogInterface.BUTTON_NEUTRAL,
+                android.content.DialogInterface.BUTTON_POSITIVE
+        };
+        for (int which : buttons) {
+            android.widget.Button button = dialog.getButton(which);
+            if (button != null) {
+                button.setTextColor(getAccentColor(accentIndex));
+            }
+        }
+    }
+
+    public static android.widget.TextView createDialogTitle(Activity activity, String text, String theme) {
+        android.widget.TextView title = new android.widget.TextView(activity);
+        title.setText(text);
+        title.setTextSize(18);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        title.setTextColor(getOnSurfaceColor(theme));
+        title.setPadding(dpToPx(activity, 4), 0, dpToPx(activity, 4), dpToPx(activity, 8));
+        return title;
+    }
+
+    public static int dpToPx(Activity activity, int dp) {
+        return Math.round(dp * activity.getResources().getDisplayMetrics().density);
+    }
+
     public static int getButtonBorderColor(String theme) {
         return "light".equals(theme) ? LIGHT_ON_BACKGROUND : DARK_BORDER;
     }
@@ -148,21 +188,19 @@ public class ThemeHelper {
         Window window = activity.getWindow();
         if (window == null) return;
 
-        int statusBarColor = getSurfaceColor(theme);
-        window.setStatusBarColor(statusBarColor);
+        boolean light = "light".equals(theme);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if ("light".equals(theme)) {
-                window.getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                );
-            } else {
-                window.getDecorView().setSystemUiVisibility(0);
-            }
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(window, window.getDecorView());
+        if (controller != null) {
+            controller.setAppearanceLightStatusBars(light);
+            controller.setAppearanceLightNavigationBars(light);
         }
 
-        int navBarColor = getBackgroundColor(theme);
-        window.setNavigationBarColor(navBarColor);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            window.setStatusBarColor(getSurfaceColor(theme));
+            window.setNavigationBarColor(getBackgroundColor(theme));
+        }
     }
 
     public static GradientDrawable createCircleBackground(String theme) {
@@ -170,5 +208,22 @@ public class ThemeHelper {
         circle.setShape(GradientDrawable.OVAL);
         circle.setColor(getSurfaceVariantColor(theme));
         return circle;
+    }
+
+    private static int withAlpha(int color, int alpha) {
+        return (color & 0x00FFFFFF) | (alpha << 24);
+    }
+
+    public static void tintSwitch(android.widget.Switch sw, int accent, String theme) {
+        if (sw == null) return;
+        int thumbChecked = accent;
+        int thumbUnchecked = "light".equals(theme) ? 0xFFF5F5F5 : 0xFFD9D5E6;
+        int trackChecked = withAlpha(accent, 0x80);
+        int trackUnchecked = getBorderColor(theme);
+        int[][] states = new int[][]{{android.R.attr.state_checked}, {}};
+        sw.setThumbTintList(new android.content.res.ColorStateList(
+                states, new int[]{thumbChecked, thumbUnchecked}));
+        sw.setTrackTintList(new android.content.res.ColorStateList(
+                states, new int[]{trackChecked, trackUnchecked}));
     }
 }

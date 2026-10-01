@@ -145,6 +145,57 @@
 
     </LinearLayout>
 
+    <!-- 20dp gap -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <!-- Tempo -->
+    <TextView
+        android:id="@+id/tempoLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tempo: 100%"
+        android:textColor="@color/textOnDark"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <SeekBar
+        android:id="@+id/tempoSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:max="20"
+        android:progress="10"
+        android:progressTint="@color/accent"
+        android:thumbTint="@color/accent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tempoMin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="50%"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tempoMax"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="150%"
+            android:textColor="@color/textSecondaryOnDark"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
     <!-- Spacer bottom -->
     <Space
         android:layout_width="match_parent"

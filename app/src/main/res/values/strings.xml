@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Dance Final Music</string>
+    <string name="aboutQrDescription">QR code to the support page</string>
+    <string name="aboutNoBrowser">No browser found</string>
+    <string name="supportUrl">https://www.buymeacoffee.com/TobiasReichel</string>
 </resources>

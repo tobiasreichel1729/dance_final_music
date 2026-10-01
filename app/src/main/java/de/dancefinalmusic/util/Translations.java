@@ -181,6 +181,27 @@ public class Translations {
         return "de".equals(lang) ? "Über" : "About";
     }
 
+    public static String getContact(String lang) {
+        return "de".equals(lang) ? "Kontakt" : "Contact";
+    }
+
+    public static String getSupport(String lang) {
+        return "de".equals(lang) ? "Unterstütze mich" : "Support me";
+    }
+
+    public static String getBpmScopeHint(String lang, String dance) {
+        String name = dance != null && !dance.isEmpty() ? dance : "";
+        return "de".equals(lang)
+                ? "BPM – nur für den Einzeltanz" + (name.isEmpty() ? "" : " (" + name + ")")
+                : "BPM - single dance only" + (name.isEmpty() ? "" : " (" + name + ")");
+    }
+
+    public static String getSpeedScopeHint(String lang) {
+        return "de".equals(lang)
+                ? "Speed – gilt für das Dance Final"
+                : "Speed - applies to the dance final";
+    }
+
     public static String getCopyrights(String lang) {
         return "de".equals(lang) ? "Urheberrechte" : "Copyrights";
     }
@@ -197,6 +218,120 @@ public class Translations {
         return "de".equals(lang) ? "Ordner ausgewählt" : "Folder selected";
     }
 
+    public static String getFolderAccessLost(String lang) {
+        return "de".equals(lang) ? "Zugriff verloren – Ordner erneut wählen" : "Access lost - re-select folder";
+    }
+
+    public static String getMusicAccessLostHint(String lang) {
+        return "de".equals(lang) ? "Kein Zugriff auf den Musikordner. Bitte in den Einstellungen erneut auswählen."
+                : "No access to the music folder. Please re-select it in the settings.";
+    }
+
+    public static String getNoFolderTitle(String lang) {
+        return "de".equals(lang) ? "Musikordner fehlen" : "No music folders yet";
+    }
+
+    public static String getNoFolderMessage(String lang) {
+        return "de".equals(lang)
+                ? "Wähle in den Einstellungen einen Musikordner für jeden Tanz aus, damit die App Titel und BPM der Tracks lesen kann."
+                : "Choose a music folder for each dance in the settings so the app can read the track names and BPM.";
+    }
+
+    public static String getNoFolderForDances(String lang, String dances) {
+        String base = "de".equals(lang)
+                ? "Für folgende Tänze ist noch kein Musikordner ausgewählt: "
+                : "No music folder selected for: ";
+        return base + dances;
+    }
+
+    public static String getOpenSettings(String lang) {
+        return "de".equals(lang) ? "Zu den Einstellungen" : "Open settings";
+    }
+
+    public static String getNotNow(String lang) {
+        return "de".equals(lang) ? "Später" : "Not now";
+    }
+
+    public static String getSingleDanceTitle(String lang) {
+        return "de".equals(lang) ? "Einzeltanz abspielen" : "Play Single Dance";
+    }
+
+    public static String getTempo(String lang) {
+        return "de".equals(lang) ? "Tempo" : "Tempo";
+    }
+
+    public static String getSpeedLabel(String lang) {
+        return "de".equals(lang) ? "Tempo" : "Speed";
+    }
+
+    public static String getBpmLabel(String lang) {
+        return "BPM";
+    }
+
+    public static String getTempoPercent(String lang, float tempo) {
+        return "de".equals(lang) ? "Tempo: " + Math.round(tempo * 100) + "%"
+                : "Tempo: " + Math.round(tempo * 100) + "%";
+    }
+
+    public static String getOff(String lang) {
+        return "de".equals(lang) ? "Aus" : "Off";
+    }
+
+    public static String getAuto(String lang) {
+        return "de".equals(lang) ? "Auto" : "Auto";
+    }
+
+    public static String getBpmDialogHint(String lang) {
+        return "de".equals(lang)
+                ? "0 = Auto (nutzt das Tempo %)"
+                : "0 = Auto (uses tempo %)";
+    }
+
+    public static String getNowPlaying(String lang) {
+        return "de".equals(lang) ? "Aktuell" : "Now playing";
+    }
+
+    public static String getQueueTitle(String lang) {
+        return "de".equals(lang) ? "Warteschlange" : "Queue";
+    }
+
+    public static String getQueueHint(String lang) {
+        return "de".equals(lang)
+                ? "Tippe auf einen Song, um ihn sofort abzuspielen"
+                : "Tap a song to play it immediately";
+    }
+
+    public static String getQueueEmpty(String lang) {
+        return "de".equals(lang)
+                ? "Keine Warteschlange. Starte einen Einzeltanz."
+                : "No queue. Start a single dance.";
+    }
+
+    public static String getQueueLoading(String lang) {
+        return "de".equals(lang) ? "Wird geladen..." : "Loading...";
+    }
+
+    public static String getNowPlayingTitle(String lang) {
+        return "de".equals(lang) ? "Wiedergabe" : "Now Playing";
+    }
+
+    public static String getPlaybackOptions(String lang) {
+        return "de".equals(lang) ? "Wiedergabeoptionen" : "Playback Options";
+    }
+
+    public static String getEffects(String lang) {
+        return "de".equals(lang) ? "Musik-Effekte" : "Music Effects";
+    }
+
+    public static String getFadeOut(String lang) {
+        return "de".equals(lang) ? "Sanftes Ausblenden" : "Fade out";
+    }
+
+    public static String getApplause(String lang) {
+        return "de".equals(lang) ? "Applaus am Ende" : "Applause at the end";
+    }
+
+
     public static String getSelectDancesHint(String lang) {
         return "de".equals(lang) ? "Bitte wähle zuerst Tänze aus" : "Please select dances first";
     }
@@ -207,6 +342,24 @@ public class Translations {
 
     public static String getSkip(String lang) {
         return "de".equals(lang) ? "Überspringen" : "Skip";
+    }
+
+    /**
+     * Dance names double as persistence keys for the selected-dance lists, BPM targets
+     * and music folder paths, so the stored name stays stable while only the visible
+     * text is localized. Renames go through SettingsManager.RENAMED_DANCES.
+     */
+    public static String getDanceName(String lang, String dance) {
+        if (dance == null || dance.isEmpty()) return "";
+        if ("de".equals(lang)) return dance;
+        switch (dance) {
+            case "Walzer":
+                return "Walz";
+            case "Wiener Walzer":
+                return "Viennese Waltz";
+            default:
+                return dance;
+        }
     }
 
 }

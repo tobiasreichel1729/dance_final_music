@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +43,11 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView accentColorLabel;
     private LinearLayout accentColorFlow;
     private TextView languageSectionHeader;
+    private TextView effectsSectionHeader;
+    private TextView fadeLabel;
+    private TextView applauseLabel;
+    private Switch fadeSwitch;
+    private Switch applauseSwitch;
     private Button deBtn;
     private Button enBtn;
     private Button standardBtn;
@@ -102,11 +108,24 @@ public class SettingsActivity extends AppCompatActivity {
         accentColorLabel = findViewById(R.id.accentColorLabel);
         accentColorFlow = findViewById(R.id.accentColorFlow);
         languageSectionHeader = findViewById(R.id.languageSectionHeader);
+        effectsSectionHeader = findViewById(R.id.effectsSectionHeader);
+        fadeLabel = findViewById(R.id.fadeLabel);
+        applauseLabel = findViewById(R.id.applauseLabel);
+        fadeSwitch = findViewById(R.id.fadeSwitch);
+        applauseSwitch = findViewById(R.id.applauseSwitch);
         standardBtn = findViewById(R.id.standardBtn);
         lateinBtn = findViewById(R.id.lateinBtn);
         deBtn = findViewById(R.id.deBtn);
         enBtn = findViewById(R.id.enBtn);
         aboutBtn = findViewById(R.id.aboutBtn);
+
+        fadeSwitch.setChecked(settings.isFadeEnabled());
+        applauseSwitch.setChecked(settings.isApplauseEnabled());
+
+        fadeSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                settings.setFadeEnabled(isChecked));
+        applauseSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                settings.setApplauseEnabled(isChecked));
 
         backBtn.setOnClickListener(v -> MainActivity.goToMain(this));
 
@@ -155,7 +174,6 @@ public class SettingsActivity extends AppCompatActivity {
         standardBtn.setOnClickListener(v -> {
             if (!"standard".equals(settings.getDanceStyle())) {
                 settings.setDanceStyle("standard");
-                settings.setSelectedDancesList(new java.util.ArrayList<>());
                 updateToggleStates();
                 applyTheme();
                 populateMusicList();
@@ -165,7 +183,6 @@ public class SettingsActivity extends AppCompatActivity {
         lateinBtn.setOnClickListener(v -> {
             if (!"latein".equals(settings.getDanceStyle())) {
                 settings.setDanceStyle("latein");
-                settings.setSelectedDancesList(new java.util.ArrayList<>());
                 updateToggleStates();
                 applyTheme();
                 populateMusicList();
@@ -182,6 +199,8 @@ public class SettingsActivity extends AppCompatActivity {
         int onBg = ThemeHelper.getOnBackgroundColor(theme);
         int onSurface = ThemeHelper.getOnSurfaceColor(theme);
 
+        ThemeHelper.applyTheme(this, theme, accentIndex);
+
         findViewById(android.R.id.content).getRootView().setBackgroundColor(bg);
 
         if (headerTitle != null) headerTitle.setTextColor(onBg);
@@ -194,6 +213,12 @@ public class SettingsActivity extends AppCompatActivity {
         if (themeSectionHeader != null) themeSectionHeader.setTextColor(accentColor);
         if (accentColorLabel != null) accentColorLabel.setTextColor(accentColor);
         if (languageSectionHeader != null) languageSectionHeader.setTextColor(accentColor);
+        if (effectsSectionHeader != null) effectsSectionHeader.setTextColor(accentColor);
+        if (fadeLabel != null) fadeLabel.setTextColor(onSurface);
+        if (applauseLabel != null) applauseLabel.setTextColor(onSurface);
+
+        ThemeHelper.tintSwitch(fadeSwitch, accentColor, theme);
+        ThemeHelper.tintSwitch(applauseSwitch, accentColor, theme);
 
         applyButtonStyle(darkBtn);
         applyButtonStyle(systemBtn);
@@ -245,6 +270,9 @@ public class SettingsActivity extends AppCompatActivity {
         if (themeSectionHeader != null) themeSectionHeader.setText(Translations.getThemeSettings(lang));
         if (accentColorLabel != null) accentColorLabel.setText(Translations.getAccentColor(lang) + ":");
         if (languageSectionHeader != null) languageSectionHeader.setText(Translations.getLanguageSettings(lang));
+        if (effectsSectionHeader != null) effectsSectionHeader.setText(Translations.getEffects(lang));
+        if (fadeLabel != null) fadeLabel.setText(Translations.getFadeOut(lang));
+        if (applauseLabel != null) applauseLabel.setText(Translations.getApplause(lang));
         if (aboutBtn != null) aboutBtn.setText(Translations.getAbout(lang));
         if (standardBtn != null) standardBtn.setText(Translations.getStandardLabel(lang));
         if (lateinBtn != null) lateinBtn.setText(Translations.getLateinLabel(lang));
@@ -316,7 +344,7 @@ public class SettingsActivity extends AppCompatActivity {
             textCol.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView nameTv = new TextView(this);
-            nameTv.setText(danceName);
+            nameTv.setText(Translations.getDanceName(lang, danceName));
             nameTv.setTextColor(onSurface);
             nameTv.setTextSize(15);
             nameTv.setIncludeFontPadding(false);
@@ -328,8 +356,10 @@ public class SettingsActivity extends AppCompatActivity {
                 String folderName = getFolderName(folderPath);
                 if (folderName != null) {
                     pathTv.setText(folderName);
-                } else {
+                } else if (settings.hasFolderAccess(this, folderPath)) {
                     pathTv.setText(Translations.getFolderSet(lang));
+                } else {
+                    pathTv.setText(Translations.getFolderAccessLost(lang));
                 }
             } else {
                 pathTv.setText(Translations.getNoMusicSet(lang));
@@ -393,28 +423,23 @@ public class SettingsActivity extends AppCompatActivity {
     private void setupColorCircles() {
         if (accentColorFlow == null) return;
 
-        int[][] rowConfigs = {
-                {R.id.color1, R.id.color2, R.id.color3, R.id.color4, R.id.color5},
-                {R.id.color6, R.id.color7, R.id.color8, R.id.color9, R.id.color10}
+        int[] colorIds = {
+                R.id.color1, R.id.color2, R.id.color3, R.id.color4, R.id.color5,
+                R.id.color6, R.id.color7, R.id.color8, R.id.color9, R.id.color10
         };
 
-        int idx = 0;
-        for (int[] row : rowConfigs) {
-            for (int id : row) {
-                View v = findViewById(id);
-                if (v != null) {
-                    final int colorIdx = idx;
-                    colorViews[idx] = v;
-                    v.setOnClickListener(view -> {
-                        settings.setAccentColorIndex(colorIdx);
-                        accentIndex = colorIdx;
-                        accentColor = ThemeHelper.getAccentColor(colorIdx);
-                        updateColorSelection();
-                        applyTheme();
-                    });
-                }
-                idx++;
-            }
+        for (int i = 0; i < colorIds.length; i++) {
+            View v = findViewById(colorIds[i]);
+            if (v == null) continue;
+            final int colorIdx = i;
+            colorViews[i] = v;
+            v.setOnClickListener(view -> {
+                settings.setAccentColorIndex(colorIdx);
+                accentIndex = colorIdx;
+                accentColor = ThemeHelper.getAccentColor(colorIdx);
+                updateColorSelection();
+                applyTheme();
+            });
         }
         updateColorSelection();
     }

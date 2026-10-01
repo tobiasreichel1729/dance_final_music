@@ -157,4 +157,33 @@ If the app is useful to you, a coffee goes a long way:
 
 **https://www.buymeacoffee.com/TobiasReichel**
 
-The same link is available in the app under About.
+Scan to open the support page:
+
+<img src="app/src/main/res/drawable-nodpi/qr_contact.png" alt="QR code linking to the support page" width="220">
+
+The same link is available in the app under About, as text and as this QR code.
+
+## AI assistance disclosure
+
+This project was developed with AI assistance. The code, layout XML, resources, and
+documentation were written in collaboration with an AI coding assistant (OpenCode,
+running on a Claude-based model), working interactively under the direction of the
+author.
+
+To be transparent about what that means in practice:
+
+- **Generated code.** A substantial share of the source was drafted or rewritten by the
+  assistant. That includes the playback and session logic, the foreground service and
+  media session integration, several activities, most of the layout files, and the
+  German/English string tables.
+- **Reviewed and verified.** All generated code was read, adjusted, compiled, and
+  exercised on a physical device before being committed. Behaviour that was not
+  confirmed that way should be considered unverified.
+- **Author responsibility.** The design decisions, feature scope, music-collection
+  decisions, and the decision to ship are the author's. The assistant had no
+  independent goals in the project.
+- **No training on your code.** Nothing in this repository was submitted to a model
+  provider for training. The assistant accessed only this repository and the connected
+  Android device.
+
+The signing key was never shared with the assistant and is not part of this repository.
